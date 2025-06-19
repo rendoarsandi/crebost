@@ -166,6 +166,85 @@
       }
     }
   ],
+  "workers": [
+    {
+      "name": "crebost-api",
+      "script_path": "workers/api/index.js",
+      "custom_domain": "api.crebost.com",
+      "routes": [
+        {
+          "pattern": "api.crebost.com/*",
+          "zone": "crebost.com"
+        }
+      ],
+      "d1_bindings": [
+        {
+          "binding": "DB",
+          "database_name": "crebost-production"
+        }
+      ],
+      "kv_bindings": [
+        {
+          "binding": "SESSIONS",
+          "namespace_title": "crebost-sessions"
+        },
+        {
+          "binding": "CACHE",
+          "namespace_title": "crebost-cache"
+        },
+        {
+          "binding": "ANALYTICS",
+          "namespace_title": "crebost-analytics"
+        }
+      ],
+      "r2_bindings": [
+        {
+          "binding": "UPLOADS",
+          "bucket_name": "crebost-uploads"
+        },
+        {
+          "binding": "ASSETS",
+          "bucket_name": "crebost-static-assets"
+        }
+      ],
+      "environment_variables": {
+        "NODE_ENV": "production",
+        "BETTER_AUTH_SECRET": "L90cbYFfrXn3Yl1TewISaJLU2bFsSNWN",
+        "BETTER_AUTH_URL": "https://auth.crebost.com",
+        "CORS_ORIGINS": "https://landing.crebost.com,https://auth.crebost.com,https://dashboard.crebost.com,https://admin.crebost.com",
+        "MIDTRANS_SERVER_KEY": "your-midtrans-server-key",
+        "MIDTRANS_CLIENT_KEY": "your-midtrans-client-key"
+      }
+    },
+    {
+      "name": "crebost-webhooks",
+      "script_path": "workers/webhooks/index.js",
+      "custom_domain": "webhooks.crebost.com",
+      "routes": [
+        {
+          "pattern": "webhooks.crebost.com/*",
+          "zone": "crebost.com"
+        }
+      ],
+      "d1_bindings": [
+        {
+          "binding": "DB",
+          "database_name": "crebost-production"
+        }
+      ],
+      "kv_bindings": [
+        {
+          "binding": "CACHE",
+          "namespace_title": "crebost-cache"
+        }
+      ],
+      "environment_variables": {
+        "NODE_ENV": "production",
+        "MIDTRANS_SERVER_KEY": "your-midtrans-server-key",
+        "WEBHOOK_SECRET": "your-webhook-secret"
+      }
+    }
+  ],
   "dns_records": [
     {
       "type": "CNAME",

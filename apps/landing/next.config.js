@@ -8,20 +8,24 @@ const nextConfig = {
     unoptimized: true,
   },
   async redirects() {
+    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'https://auth.crebost.com';
+    const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL || 'https://dashboard.crebost.com';
+    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'https://admin.crebost.com';
+
     return [
       {
         source: '/auth/:path*',
-        destination: `${process.env.NEXT_PUBLIC_AUTH_URL}/:path*`,
+        destination: `${authUrl}/:path*`,
         permanent: false,
       },
       {
         source: '/dashboard/:path*',
-        destination: `${process.env.NEXT_PUBLIC_DASHBOARD_URL}/:path*`,
+        destination: `${dashboardUrl}/:path*`,
         permanent: false,
       },
       {
         source: '/admin/:path*',
-        destination: `${process.env.NEXT_PUBLIC_ADMIN_URL}/:path*`,
+        destination: `${adminUrl}/:path*`,
         permanent: false,
       },
     ]

@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    transpilePackages: ['@crebost/shared', '@crebost/database', '@crebost/ui'],
-  },
+  transpilePackages: ['@crebost/shared', '@crebost/database', '@crebost/ui'],
   images: {
     domains: ['lh3.googleusercontent.com', 'avatars.githubusercontent.com'],
   },

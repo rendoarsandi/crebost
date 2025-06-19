@@ -1,16 +1,25 @@
-import { ReactNode, useState } from 'react'
-import { useSession, signOut } from 'next-auth/react'
+import { ReactNode, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { getSession, signOut, Session } from '../../lib/auth'
 
 interface AdminLayoutProps {
   children: ReactNode
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { data: session } = useSession()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [session, setSession] = useState<Session | null>(null)
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const sessionData = await getSession()
+      setSession(sessionData)
+    }
+
+    fetchSession()
+  }, [])
 
   const navigation = [
     {
@@ -98,7 +107,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   ]
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: process.env.NEXT_PUBLIC_LANDING_URL })
+    signOut()
   }
 
   return (

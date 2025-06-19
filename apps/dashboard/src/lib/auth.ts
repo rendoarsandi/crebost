@@ -1,65 +1,61 @@
-import { NextAuthOptions } from 'next-auth'
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
-import { prisma } from '@crebost/database'
-
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
-  providers: [], // Providers will be handled by auth service
-  session: {
-    strategy: 'jwt',
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role
-        token.status = user.status
-        token.userId = user.id
-      }
-      return token
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.userId as string
-        session.user.role = token.role as string
-        session.user.status = token.status as string
-      }
-      return session
-    },
-    async redirect({ url, baseUrl }) {
-      // Always redirect to dashboard
-      return baseUrl
-    },
-  },
-  pages: {
-    signIn: `${process.env.NEXT_PUBLIC_AUTH_URL}/signin`,
-    signUp: `${process.env.NEXT_PUBLIC_AUTH_URL}/signup`,
-    error: `${process.env.NEXT_PUBLIC_AUTH_URL}/error`,
+// BetterAuth client configuration for dashboard app
+export const authConfig = {
+  baseURL: process.env.NEXT_PUBLIC_AUTH_URL || 'https://auth.crebost.com',
+  endpoints: {
+    signIn: '/signin',
+    signUp: '/signup',
+    signOut: '/signout',
+    session: '/api/auth/session',
   },
 }
 
-// Extend NextAuth types
-declare module 'next-auth' {
-  interface User {
-    role: string
-    status: string
-  }
+// Auth utility functions
+export async function getSession() {
+  try {
+    const response = await fetch(`${authConfig.baseURL}/api/auth/session`, {
+      credentials: 'include',
+    })
 
-  interface Session {
-    user: {
-      id: string
-      email: string
-      name: string
-      image?: string
-      role: string
-      status: string
+    if (!response.ok) {
+      return null
     }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Failed to get session:', error)
+    return null
   }
 }
 
-declare module 'next-auth/jwt' {
-  interface JWT {
-    userId: string
-    role: string
-    status: string
+export async function signOut() {
+  try {
+    await fetch(`${authConfig.baseURL}/api/auth/signout`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+
+    // Redirect to auth service
+    window.location.href = `${authConfig.baseURL}/signin`
+  } catch (error) {
+    console.error('Failed to sign out:', error)
   }
+}
+
+export function redirectToAuth(path: string = '/signin') {
+  window.location.href = `${authConfig.baseURL}${path}`
+}
+
+// Types for BetterAuth
+export interface User {
+  id: string
+  email: string
+  name: string
+  image?: string
+  role: string
+  status: string
+}
+
+export interface Session {
+  user: User
+  expires: string
 }

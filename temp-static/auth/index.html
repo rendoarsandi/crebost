@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crebost Auth - Masuk atau Daftar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Crebost Auth Service
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Authentication service dengan BetterAuth
+                </p>
+            </div>
+            
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <div class="space-y-4">
+                    <div class="text-center">
+                        <div class="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-lg">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            Auth Service Active
+                        </div>
+                    </div>
+                    
+                    <div class="text-center space-y-4">
+                        <p class="text-gray-600">BetterAuth Configuration:</p>
+                        <div class="bg-gray-50 p-4 rounded-lg text-left">
+                            <p class="text-sm text-gray-700"><strong>Base URL:</strong> https://crebost-auth.pages.dev</p>
+                            <p class="text-sm text-gray-700"><strong>Secret:</strong> Configured ✓</p>
+                            <p class="text-sm text-gray-700"><strong>Providers:</strong> Email/Password, Google</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                            Sign In (Coming Soon)
+                        </button>
+                        <button class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                            Sign Up (Coming Soon)
+                        </button>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="https://crebost-landing.pages.dev" class="text-purple-600 hover:text-purple-500 text-sm">
+                            ← Kembali ke Landing Page
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <p class="text-xs text-gray-500">
+                    API Status: <a href="https://crebost-api.rendoarsandi.workers.dev/api/health" class="text-purple-600">Check Health</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

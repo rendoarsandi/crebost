@@ -1,45 +1,31 @@
-import { withAuth } from 'next-auth/middleware'
 import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token
-    const { pathname } = req.nextUrl
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
 
-    // Check if user is banned or suspended
-    if (token?.status === 'BANNED' || token?.status === 'SUSPENDED') {
-      return NextResponse.redirect(new URL('/suspended', req.url))
-    }
-
-    // Role-based access control
-    if (pathname.startsWith('/admin')) {
-      if (token?.role !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/unauthorized', req.url))
-      }
-    }
-
-    // Creator-only routes
-    if (pathname.startsWith('/creator')) {
-      if (token?.role !== 'CREATOR' && token?.role !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/unauthorized', req.url))
-      }
-    }
-
-    // Promoter-only routes
-    if (pathname.startsWith('/promoter')) {
-      if (token?.role !== 'PROMOTER' && token?.role !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/unauthorized', req.url))
-      }
-    }
-
+  // Skip middleware for public paths
+  if (
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon.ico') ||
+    pathname.startsWith('/public') ||
+    pathname === '/unauthorized' ||
+    pathname === '/suspended'
+  ) {
     return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
   }
-)
+
+  // Check for session cookie or redirect to auth
+  const sessionCookie = request.cookies.get('better-auth.session_token')
+
+  if (!sessionCookie) {
+    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'https://auth.crebost.com'
+    return NextResponse.redirect(`${authUrl}/signin?redirect=${encodeURIComponent(request.url)}`)
+  }
+
+  return NextResponse.next()
+}
 
 export const config = {
   matcher: [

@@ -1,0 +1,20 @@
+name = "crebost-webhooks"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+# Environment variables
+[vars]
+NODE_ENV = "production"
+MIDTRANS_SERVER_KEY = "your-midtrans-server-key"
+WEBHOOK_SECRET = "your-webhook-secret"
+
+# D1 Database bindings
+[[d1_databases]]
+binding = "DB"
+database_name = "crebost-production"
+database_id = "23bed93f-255c-4394-95d8-3408fd23e3e5"
+
+# KV namespace bindings (commented out for initial deployment)
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "11ac1ff7bee34d709cb2d155600a17150"
