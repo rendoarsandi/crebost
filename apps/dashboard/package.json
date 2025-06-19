@@ -1,0 +1,37 @@
+{
+  "name": "@crebost/dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3002",
+    "build": "next build",
+    "start": "next start -p 3002",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "better-auth": "^0.7.0",
+    "@better-auth/prisma": "^0.7.0",
+    "@tanstack/react-query": "^5.0.0",
+    "axios": "^1.6.0",
+    "react-hook-form": "^7.48.0",
+    "@hookform/resolvers": "^3.3.0",
+    "zod": "^3.22.0",
+    "recharts": "^2.8.0",
+    "@crebost/ui": "*",
+    "@crebost/shared": "*",
+    "@crebost/database": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "typescript": "^5.0.0",
+    "tailwindcss": "^3.0.0",
+    "autoprefixer": "^10.0.0",
+    "postcss": "^8.0.0"
+  }
+}

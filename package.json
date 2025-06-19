@@ -1,0 +1,42 @@
+{
+  "name": "crebost",
+  "version": "1.0.0",
+  "description": "Platform promosi konten kreator dengan sistem pembayaran per viewer",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "deploy:setup": "chmod +x scripts/*.sh",
+    "deploy:cloudflare": "./scripts/deploy-cloudflare.sh",
+    "deploy:env": "./scripts/setup-env-vars.sh",
+    "deploy:full": "npm run deploy:setup && npm run deploy:cloudflare && npm run deploy:env",
+    "github:setup": "./scripts/setup-github.sh",
+    "github:push": "git add . && git commit -m 'Update: Latest changes' && git push",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio"
+  },
+  "devDependencies": {
+    "turbo": "^1.10.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

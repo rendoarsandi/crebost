@@ -1,0 +1,37 @@
+name = "crebost-auth"
+compatibility_date = "2024-01-15"
+pages_build_output_dir = ".next"
+
+[env.production]
+name = "crebost-auth"
+route = { pattern = "auth.crebost.com/*", zone_name = "crebost.com" }
+
+[env.production.vars]
+NODE_ENV = "production"
+NEXTAUTH_URL = "https://auth.crebost.com"
+NEXT_PUBLIC_LANDING_URL = "https://landing.crebost.com"
+NEXT_PUBLIC_DASHBOARD_URL = "https://dashboard.crebost.com"
+NEXT_PUBLIC_ADMIN_URL = "https://admin.crebost.com"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "crebost-production"
+database_id = "YOUR_D1_DATABASE_ID"
+
+[[env.production.kv_namespaces]]
+binding = "SESSIONS"
+id = "YOUR_SESSIONS_KV_NAMESPACE_ID"
+preview_id = "YOUR_PREVIEW_SESSIONS_KV_NAMESPACE_ID"
+
+[[env.production.kv_namespaces]]
+binding = "CACHE"
+id = "YOUR_CACHE_KV_NAMESPACE_ID"
+preview_id = "YOUR_PREVIEW_CACHE_KV_NAMESPACE_ID"
+
+[build]
+command = "npm run build"
+cwd = "."
+watch_dir = "src"
+
+[build.upload]
+format = "modules"

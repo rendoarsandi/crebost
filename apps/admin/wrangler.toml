@@ -1,0 +1,45 @@
+name = "crebost-admin"
+compatibility_date = "2024-01-15"
+pages_build_output_dir = ".next"
+
+[env.production]
+name = "crebost-admin"
+route = { pattern = "admin.crebost.com/*", zone_name = "crebost.com" }
+
+[env.production.vars]
+NODE_ENV = "production"
+NEXT_PUBLIC_AUTH_URL = "https://auth.crebost.com"
+NEXT_PUBLIC_LANDING_URL = "https://landing.crebost.com"
+NEXT_PUBLIC_DASHBOARD_URL = "https://dashboard.crebost.com"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "crebost-production"
+database_id = "YOUR_D1_DATABASE_ID"
+
+[[env.production.kv_namespaces]]
+binding = "SESSIONS"
+id = "YOUR_SESSIONS_KV_NAMESPACE_ID"
+preview_id = "YOUR_PREVIEW_SESSIONS_KV_NAMESPACE_ID"
+
+[[env.production.kv_namespaces]]
+binding = "CACHE"
+id = "YOUR_CACHE_KV_NAMESPACE_ID"
+preview_id = "YOUR_PREVIEW_CACHE_KV_NAMESPACE_ID"
+
+[[env.production.kv_namespaces]]
+binding = "ANALYTICS"
+id = "YOUR_ANALYTICS_KV_NAMESPACE_ID"
+preview_id = "YOUR_PREVIEW_ANALYTICS_KV_NAMESPACE_ID"
+
+[[env.production.r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "crebost-uploads"
+
+[build]
+command = "npm run build"
+cwd = "."
+watch_dir = "src"
+
+[build.upload]
+format = "modules"

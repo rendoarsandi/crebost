@@ -1,0 +1,325 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  CREATOR
+  PROMOTER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum PromotionPlatform {
+  TIKTOK
+  INSTAGRAM
+  YOUTUBE
+  TWITTER
+  FACEBOOK
+}
+
+enum PromotionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  EARNING
+  PAYMENT
+  REFUND
+  FEE
+}
+
+enum TransactionReferenceType {
+  CAMPAIGN
+  PROMOTION
+  WITHDRAWAL_REQUEST
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum ReportContentType {
+  CAMPAIGN
+  PROMOTION
+  USER_PROFILE
+}
+
+enum ReportReason {
+  SPAM
+  FRAUD
+  INAPPROPRIATE_CONTENT
+  FAKE_METRICS
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  INVESTIGATING
+  RESOLVED
+  DISMISSED
+}
+
+model User {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email           String    @unique
+  name            String
+  password        String?   // For credentials login
+  avatarUrl       String?   @map("avatar_url")
+  role            UserRole  @default(PROMOTER)
+  status          UserStatus @default(ACTIVE)
+  balanceIdr      Decimal   @default(0) @map("balance_idr") @db.Decimal(15, 2)
+  totalEarnedIdr  Decimal   @default(0) @map("total_earned_idr") @db.Decimal(15, 2)
+  phone           String?
+  bio             String?
+  socialLinks     Json?     @map("social_links")
+  emailVerified   DateTime? @map("email_verified")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  campaigns           Campaign[]
+  promotions          Promotion[]
+  transactions        Transaction[]
+  withdrawalRequests  WithdrawalRequest[]
+  reportsSubmitted    Report[] @relation("ReporterReports")
+  reportsReceived     Report[] @relation("ReportedUserReports")
+  reportsResolved     Report[] @relation("ResolverReports")
+  analyticsEvents     AnalyticsEvent[]
+  processedWithdrawals WithdrawalRequest[] @relation("ProcessedByAdmin")
+
+  // NextAuth relations
+  accounts            Account[]
+  sessions            Session[]
+
+  @@map("users")
+}
+
+model Campaign {
+  id                String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  creatorId         String         @map("creator_id") @db.Uuid
+  title             String
+  description       String
+  budgetUsd         Decimal        @map("budget_usd") @db.Decimal(10, 2)
+  budgetIdr         Decimal        @map("budget_idr") @db.Decimal(15, 2)
+  ratePerViewerUsd  Decimal        @map("rate_per_viewer_usd") @db.Decimal(5, 3)
+  ratePerViewerIdr  Decimal        @map("rate_per_viewer_idr") @db.Decimal(10, 2)
+  targetViewers     Int            @map("target_viewers")
+  currentViewers    Int            @default(0) @map("current_viewers")
+  requirements      Json
+  materials         Json
+  status            CampaignStatus @default(DRAFT)
+  startDate         DateTime?      @map("start_date")
+  endDate           DateTime?      @map("end_date")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  creator           User           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  promotions        Promotion[]
+  analytics         CampaignAnalytics[]
+  reports           Report[]
+
+  @@map("campaigns")
+}
+
+model Promotion {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  campaignId      String            @map("campaign_id") @db.Uuid
+  promoterId      String            @map("promoter_id") @db.Uuid
+  platform        PromotionPlatform
+  contentUrl      String            @map("content_url")
+  proofUrl        String?           @map("proof_url")
+  viewersCount    Int               @default(0) @map("viewers_count")
+  engagementData  Json?             @map("engagement_data")
+  earningsIdr     Decimal           @default(0) @map("earnings_idr") @db.Decimal(10, 2)
+  status          PromotionStatus   @default(PENDING)
+  submittedAt     DateTime          @default(now()) @map("submitted_at")
+  approvedAt      DateTime?         @map("approved_at")
+  rejectedAt      DateTime?         @map("rejected_at")
+  rejectionReason String?           @map("rejection_reason")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  campaign        Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  promoter        User              @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+  reports         Report[]
+
+  @@map("promotions")
+}
+
+model Transaction {
+  id            String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String                     @map("user_id") @db.Uuid
+  type          TransactionType
+  amountIdr     Decimal                    @map("amount_idr") @db.Decimal(15, 2)
+  description   String
+  referenceId   String?                    @map("reference_id") @db.Uuid
+  referenceType TransactionReferenceType?  @map("reference_type")
+  paymentMethod String?                    @map("payment_method")
+  paymentData   Json?                      @map("payment_data")
+  status        TransactionStatus          @default(PENDING)
+  processedAt   DateTime?                  @map("processed_at")
+  createdAt     DateTime                   @default(now()) @map("created_at")
+
+  // Relations
+  user          User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+model WithdrawalRequest {
+  id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String           @map("user_id") @db.Uuid
+  amountIdr     Decimal          @map("amount_idr") @db.Decimal(15, 2)
+  bankName      String           @map("bank_name")
+  accountNumber String           @map("account_number")
+  accountName   String           @map("account_name")
+  adminFeeIdr   Decimal          @map("admin_fee_idr") @db.Decimal(10, 2)
+  netAmountIdr  Decimal          @map("net_amount_idr") @db.Decimal(15, 2)
+  status        WithdrawalStatus @default(PENDING)
+  processedBy   String?          @map("processed_by") @db.Uuid
+  processedAt   DateTime?        @map("processed_at")
+  notes         String?
+  createdAt     DateTime         @default(now()) @map("created_at")
+
+  // Relations
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  processor     User?            @relation("ProcessedByAdmin", fields: [processedBy], references: [id])
+
+  @@map("withdrawal_requests")
+}
+
+model Report {
+  id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reporterId          String            @map("reporter_id") @db.Uuid
+  reportedUserId      String            @map("reported_user_id") @db.Uuid
+  reportedContentId   String?           @map("reported_content_id") @db.Uuid
+  reportedContentType ReportContentType? @map("reported_content_type")
+  reason              ReportReason
+  description         String
+  evidenceUrls        Json?             @map("evidence_urls")
+  status              ReportStatus      @default(PENDING)
+  resolvedBy          String?           @map("resolved_by") @db.Uuid
+  resolvedAt          DateTime?         @map("resolved_at")
+  resolutionNotes     String?           @map("resolution_notes")
+  createdAt           DateTime          @default(now()) @map("created_at")
+
+  // Relations
+  reporter            User              @relation("ReporterReports", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser        User              @relation("ReportedUserReports", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  resolver            User?             @relation("ResolverReports", fields: [resolvedBy], references: [id])
+  campaign            Campaign?         @relation(fields: [reportedContentId], references: [id])
+  promotion           Promotion?        @relation(fields: [reportedContentId], references: [id])
+
+  @@map("reports")
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  eventType String   @map("event_type")
+  eventData Json     @map("event_data")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@map("analytics_events")
+}
+
+model CampaignAnalytics {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  campaignId        String   @map("campaign_id") @db.Uuid
+  date              DateTime @db.Date
+  totalViews        Int      @default(0) @map("total_views")
+  totalEngagement   Int      @default(0) @map("total_engagement")
+  totalSpentIdr     Decimal  @default(0) @map("total_spent_idr") @db.Decimal(15, 2)
+  platformBreakdown Json?    @map("platform_breakdown")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  // Relations
+  campaign          Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, date])
+  @@map("campaign_analytics")
+}
+
+// NextAuth.js models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id") @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
