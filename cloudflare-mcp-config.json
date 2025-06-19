@@ -1,0 +1,198 @@
+{
+  "project_name": "crebost",
+  "cleanup": {
+    "delete_all_pages": true,
+    "delete_all_d1": true,
+    "delete_all_kv": true,
+    "delete_all_r2": true,
+    "delete_all_workers": true
+  },
+  "d1_databases": [
+    {
+      "name": "crebost-production",
+      "description": "Main database for Crebost platform"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "title": "crebost-sessions",
+      "description": "User sessions storage"
+    },
+    {
+      "title": "crebost-cache",
+      "description": "Application cache storage"
+    },
+    {
+      "title": "crebost-analytics",
+      "description": "Analytics data storage"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "name": "crebost-uploads",
+      "description": "User uploaded files"
+    },
+    {
+      "name": "crebost-static-assets",
+      "description": "Static assets and media files"
+    }
+  ],
+  "pages_projects": [
+    {
+      "name": "crebost-landing",
+      "source_dir": "apps/landing/dist",
+      "build_command": "npm run build --workspace=@crebost/landing",
+      "custom_domain": "landing.crebost.com",
+      "environment_variables": {
+        "NODE_ENV": "production",
+        "NEXT_PUBLIC_AUTH_URL": "https://auth.crebost.com",
+        "NEXT_PUBLIC_DASHBOARD_URL": "https://dashboard.crebost.com",
+        "NEXT_PUBLIC_ADMIN_URL": "https://admin.crebost.com"
+      }
+    },
+    {
+      "name": "crebost-auth",
+      "source_dir": "apps/auth/.next",
+      "build_command": "npm run build --workspace=@crebost/auth",
+      "custom_domain": "auth.crebost.com",
+      "d1_bindings": [
+        {
+          "binding": "DB",
+          "database_name": "crebost-production"
+        }
+      ],
+      "kv_bindings": [
+        {
+          "binding": "SESSIONS",
+          "namespace_title": "crebost-sessions"
+        },
+        {
+          "binding": "CACHE",
+          "namespace_title": "crebost-cache"
+        }
+      ],
+      "environment_variables": {
+        "NODE_ENV": "production",
+        "BETTER_AUTH_SECRET": "L90cbYFfrXn3Yl1TewISaJLU2bFsSNWN",
+        "BETTER_AUTH_URL": "https://auth.crebost.com",
+        "NEXT_PUBLIC_LANDING_URL": "https://landing.crebost.com",
+        "NEXT_PUBLIC_DASHBOARD_URL": "https://dashboard.crebost.com",
+        "NEXT_PUBLIC_ADMIN_URL": "https://admin.crebost.com"
+      }
+    },
+    {
+      "name": "crebost-dashboard",
+      "source_dir": "apps/dashboard/.next",
+      "build_command": "npm run build --workspace=@crebost/dashboard",
+      "custom_domain": "dashboard.crebost.com",
+      "d1_bindings": [
+        {
+          "binding": "DB",
+          "database_name": "crebost-production"
+        }
+      ],
+      "kv_bindings": [
+        {
+          "binding": "SESSIONS",
+          "namespace_title": "crebost-sessions"
+        },
+        {
+          "binding": "CACHE",
+          "namespace_title": "crebost-cache"
+        },
+        {
+          "binding": "ANALYTICS",
+          "namespace_title": "crebost-analytics"
+        }
+      ],
+      "r2_bindings": [
+        {
+          "binding": "UPLOADS",
+          "bucket_name": "crebost-uploads"
+        },
+        {
+          "binding": "ASSETS",
+          "bucket_name": "crebost-static-assets"
+        }
+      ],
+      "environment_variables": {
+        "NODE_ENV": "production",
+        "BETTER_AUTH_SECRET": "L90cbYFfrXn3Yl1TewISaJLU2bFsSNWN",
+        "BETTER_AUTH_URL": "https://auth.crebost.com",
+        "NEXT_PUBLIC_AUTH_URL": "https://auth.crebost.com",
+        "NEXT_PUBLIC_LANDING_URL": "https://landing.crebost.com",
+        "NEXT_PUBLIC_ADMIN_URL": "https://admin.crebost.com",
+        "NEXT_PUBLIC_MIDTRANS_CLIENT_KEY": "your-midtrans-client-key"
+      }
+    },
+    {
+      "name": "crebost-admin",
+      "source_dir": "apps/admin/.next",
+      "build_command": "npm run build --workspace=@crebost/admin",
+      "custom_domain": "admin.crebost.com",
+      "d1_bindings": [
+        {
+          "binding": "DB",
+          "database_name": "crebost-production"
+        }
+      ],
+      "kv_bindings": [
+        {
+          "binding": "SESSIONS",
+          "namespace_title": "crebost-sessions"
+        },
+        {
+          "binding": "CACHE",
+          "namespace_title": "crebost-cache"
+        },
+        {
+          "binding": "ANALYTICS",
+          "namespace_title": "crebost-analytics"
+        }
+      ],
+      "r2_bindings": [
+        {
+          "binding": "UPLOADS",
+          "bucket_name": "crebost-uploads"
+        }
+      ],
+      "environment_variables": {
+        "NODE_ENV": "production",
+        "BETTER_AUTH_SECRET": "L90cbYFfrXn3Yl1TewISaJLU2bFsSNWN",
+        "BETTER_AUTH_URL": "https://auth.crebost.com",
+        "NEXT_PUBLIC_AUTH_URL": "https://auth.crebost.com",
+        "NEXT_PUBLIC_LANDING_URL": "https://landing.crebost.com",
+        "NEXT_PUBLIC_DASHBOARD_URL": "https://dashboard.crebost.com"
+      }
+    }
+  ],
+  "dns_records": [
+    {
+      "type": "CNAME",
+      "name": "landing",
+      "content": "crebost-landing.pages.dev"
+    },
+    {
+      "type": "CNAME",
+      "name": "auth",
+      "content": "crebost-auth.pages.dev"
+    },
+    {
+      "type": "CNAME",
+      "name": "dashboard",
+      "content": "crebost-dashboard.pages.dev"
+    },
+    {
+      "type": "CNAME",
+      "name": "admin",
+      "content": "crebost-admin.pages.dev"
+    }
+  ],
+  "post_deployment": {
+    "run_migrations": true,
+    "migration_commands": [
+      "npx prisma generate",
+      "npx prisma db push --force-reset"
+    ]
+  }
+}

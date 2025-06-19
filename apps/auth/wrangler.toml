@@ -17,6 +17,7 @@ NEXT_PUBLIC_ADMIN_URL = "https://admin.crebost.com"
 binding = "DB"
 database_name = "crebost-production"
 database_id = "YOUR_D1_DATABASE_ID"
+migrations_dir = "../../packages/database/migrations"
 
 [[env.production.kv_namespaces]]
 binding = "SESSIONS"

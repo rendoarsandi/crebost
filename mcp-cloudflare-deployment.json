@@ -1,0 +1,367 @@
+{
+  "deployment_id": "crebost-platform-2024",
+  "project_info": {
+    "name": "Crebost",
+    "description": "Platform promosi konten kreator dengan sistem pembayaran per viewer",
+    "repository": "https://github.com/rendoarsandi/crebost.git",
+    "tech_stack": ["Next.js", "Better Auth", "Prisma", "D1", "KV", "R2", "Cloudflare Pages"],
+    "deployment_date": "2024-01-19"
+  },
+  "cloudflare_config": {
+    "account_settings": {
+      "cleanup_before_deploy": true,
+      "force_delete_existing": true
+    },
+    "d1_databases": [
+      {
+        "name": "crebost-production",
+        "description": "Main SQLite database for Crebost platform",
+        "location": "auto",
+        "backup_enabled": true
+      }
+    ],
+    "kv_namespaces": [
+      {
+        "title": "crebost-sessions",
+        "description": "User authentication sessions storage",
+        "preview_title": "crebost-sessions-preview"
+      },
+      {
+        "title": "crebost-cache",
+        "description": "Application cache and temporary data",
+        "preview_title": "crebost-cache-preview"
+      },
+      {
+        "title": "crebost-analytics",
+        "description": "Analytics events and metrics storage",
+        "preview_title": "crebost-analytics-preview"
+      }
+    ],
+    "r2_buckets": [
+      {
+        "name": "crebost-uploads",
+        "description": "User uploaded files (images, videos, documents)",
+        "location": "auto",
+        "storage_class": "Standard"
+      },
+      {
+        "name": "crebost-static-assets",
+        "description": "Static assets and media files",
+        "location": "auto",
+        "storage_class": "Standard"
+      }
+    ],
+    "pages_projects": [
+      {
+        "name": "crebost-landing",
+        "description": "Landing page for Crebost platform",
+        "source": {
+          "type": "github",
+          "repo": "rendoarsandi/crebost",
+          "branch": "main",
+          "build_command": "npm run build --workspace=@crebost/landing",
+          "build_output_directory": "apps/landing/dist",
+          "root_directory": "/"
+        },
+        "custom_domain": "landing.crebost.com",
+        "environment_variables": {
+          "NODE_ENV": "production",
+          "NEXT_PUBLIC_AUTH_URL": "https://auth.crebost.com",
+          "NEXT_PUBLIC_DASHBOARD_URL": "https://dashboard.crebost.com",
+          "NEXT_PUBLIC_ADMIN_URL": "https://admin.crebost.com"
+        },
+        "build_settings": {
+          "framework": "nextjs",
+          "node_version": "18"
+        }
+      },
+      {
+        "name": "crebost-auth",
+        "description": "Authentication service with Better Auth",
+        "source": {
+          "type": "github",
+          "repo": "rendoarsandi/crebost",
+          "branch": "main",
+          "build_command": "npm run build --workspace=@crebost/auth",
+          "build_output_directory": "apps/auth/.next",
+          "root_directory": "/"
+        },
+        "custom_domain": "auth.crebost.com",
+        "bindings": {
+          "d1_databases": [
+            {
+              "binding": "DB",
+              "database_name": "crebost-production"
+            }
+          ],
+          "kv_namespaces": [
+            {
+              "binding": "SESSIONS",
+              "namespace_title": "crebost-sessions"
+            },
+            {
+              "binding": "CACHE",
+              "namespace_title": "crebost-cache"
+            }
+          ]
+        },
+        "environment_variables": {
+          "NODE_ENV": "production",
+          "BETTER_AUTH_SECRET": "L90cbYFfrXn3Yl1TewISaJLU2bFsSNWN",
+          "BETTER_AUTH_URL": "https://auth.crebost.com",
+          "NEXT_PUBLIC_LANDING_URL": "https://landing.crebost.com",
+          "NEXT_PUBLIC_DASHBOARD_URL": "https://dashboard.crebost.com",
+          "NEXT_PUBLIC_ADMIN_URL": "https://admin.crebost.com"
+        },
+        "build_settings": {
+          "framework": "nextjs",
+          "node_version": "18"
+        }
+      },
+      {
+        "name": "crebost-dashboard",
+        "description": "User dashboard for creators and promoters",
+        "source": {
+          "type": "github",
+          "repo": "rendoarsandi/crebost",
+          "branch": "main",
+          "build_command": "npm run build --workspace=@crebost/dashboard",
+          "build_output_directory": "apps/dashboard/.next",
+          "root_directory": "/"
+        },
+        "custom_domain": "dashboard.crebost.com",
+        "bindings": {
+          "d1_databases": [
+            {
+              "binding": "DB",
+              "database_name": "crebost-production"
+            }
+          ],
+          "kv_namespaces": [
+            {
+              "binding": "SESSIONS",
+              "namespace_title": "crebost-sessions"
+            },
+            {
+              "binding": "CACHE",
+              "namespace_title": "crebost-cache"
+            },
+            {
+              "binding": "ANALYTICS",
+              "namespace_title": "crebost-analytics"
+            }
+          ],
+          "r2_buckets": [
+            {
+              "binding": "UPLOADS",
+              "bucket_name": "crebost-uploads"
+            },
+            {
+              "binding": "ASSETS",
+              "bucket_name": "crebost-static-assets"
+            }
+          ]
+        },
+        "environment_variables": {
+          "NODE_ENV": "production",
+          "BETTER_AUTH_SECRET": "L90cbYFfrXn3Yl1TewISaJLU2bFsSNWN",
+          "BETTER_AUTH_URL": "https://auth.crebost.com",
+          "NEXT_PUBLIC_AUTH_URL": "https://auth.crebost.com",
+          "NEXT_PUBLIC_LANDING_URL": "https://landing.crebost.com",
+          "NEXT_PUBLIC_ADMIN_URL": "https://admin.crebost.com"
+        },
+        "build_settings": {
+          "framework": "nextjs",
+          "node_version": "18"
+        }
+      },
+      {
+        "name": "crebost-admin",
+        "description": "Admin panel for platform management",
+        "source": {
+          "type": "github",
+          "repo": "rendoarsandi/crebost",
+          "branch": "main",
+          "build_command": "npm run build --workspace=@crebost/admin",
+          "build_output_directory": "apps/admin/.next",
+          "root_directory": "/"
+        },
+        "custom_domain": "admin.crebost.com",
+        "bindings": {
+          "d1_databases": [
+            {
+              "binding": "DB",
+              "database_name": "crebost-production"
+            }
+          ],
+          "kv_namespaces": [
+            {
+              "binding": "SESSIONS",
+              "namespace_title": "crebost-sessions"
+            },
+            {
+              "binding": "CACHE",
+              "namespace_title": "crebost-cache"
+            },
+            {
+              "binding": "ANALYTICS",
+              "namespace_title": "crebost-analytics"
+            }
+          ],
+          "r2_buckets": [
+            {
+              "binding": "UPLOADS",
+              "bucket_name": "crebost-uploads"
+            }
+          ]
+        },
+        "environment_variables": {
+          "NODE_ENV": "production",
+          "BETTER_AUTH_SECRET": "L90cbYFfrXn3Yl1TewISaJLU2bFsSNWN",
+          "BETTER_AUTH_URL": "https://auth.crebost.com",
+          "NEXT_PUBLIC_AUTH_URL": "https://auth.crebost.com",
+          "NEXT_PUBLIC_LANDING_URL": "https://landing.crebost.com",
+          "NEXT_PUBLIC_DASHBOARD_URL": "https://dashboard.crebost.com"
+        },
+        "build_settings": {
+          "framework": "nextjs",
+          "node_version": "18"
+        }
+      }
+    ],
+    "dns_configuration": {
+      "zone_name": "crebost.com",
+      "records": [
+        {
+          "type": "CNAME",
+          "name": "landing",
+          "content": "crebost-landing.pages.dev",
+          "ttl": 1,
+          "proxied": true
+        },
+        {
+          "type": "CNAME",
+          "name": "auth",
+          "content": "crebost-auth.pages.dev",
+          "ttl": 1,
+          "proxied": true
+        },
+        {
+          "type": "CNAME",
+          "name": "dashboard",
+          "content": "crebost-dashboard.pages.dev",
+          "ttl": 1,
+          "proxied": true
+        },
+        {
+          "type": "CNAME",
+          "name": "admin",
+          "content": "crebost-admin.pages.dev",
+          "ttl": 1,
+          "proxied": true
+        }
+      ]
+    }
+  },
+  "deployment_steps": [
+    {
+      "step": 1,
+      "name": "cleanup",
+      "description": "Delete all existing Cloudflare resources",
+      "commands": [
+        "delete_all_pages_projects",
+        "delete_all_d1_databases",
+        "delete_all_kv_namespaces",
+        "delete_all_r2_buckets",
+        "delete_all_workers"
+      ]
+    },
+    {
+      "step": 2,
+      "name": "create_resources",
+      "description": "Create new Cloudflare resources",
+      "commands": [
+        "create_d1_databases",
+        "create_kv_namespaces",
+        "create_r2_buckets"
+      ]
+    },
+    {
+      "step": 3,
+      "name": "build_applications",
+      "description": "Build all Next.js applications",
+      "commands": [
+        "npm_install",
+        "build_shared_packages",
+        "build_applications"
+      ]
+    },
+    {
+      "step": 4,
+      "name": "deploy_pages",
+      "description": "Deploy applications to Cloudflare Pages",
+      "commands": [
+        "deploy_landing_page",
+        "deploy_auth_service",
+        "deploy_dashboard",
+        "deploy_admin_panel"
+      ]
+    },
+    {
+      "step": 5,
+      "name": "configure_bindings",
+      "description": "Configure D1, KV, and R2 bindings",
+      "commands": [
+        "bind_d1_databases",
+        "bind_kv_namespaces",
+        "bind_r2_buckets"
+      ]
+    },
+    {
+      "step": 6,
+      "name": "setup_domains",
+      "description": "Configure custom domains and DNS",
+      "commands": [
+        "add_custom_domains",
+        "configure_dns_records",
+        "enable_ssl_certificates"
+      ]
+    },
+    {
+      "step": 7,
+      "name": "database_migration",
+      "description": "Setup database schema in D1",
+      "commands": [
+        "generate_prisma_client",
+        "push_database_schema",
+        "seed_initial_data"
+      ]
+    }
+  ],
+  "post_deployment": {
+    "verification_urls": [
+      "https://landing.crebost.com",
+      "https://auth.crebost.com/api/health",
+      "https://dashboard.crebost.com/api/health",
+      "https://admin.crebost.com/api/health"
+    ],
+    "monitoring": {
+      "enable_analytics": true,
+      "enable_real_user_monitoring": true,
+      "enable_security_insights": true
+    },
+    "notifications": {
+      "deployment_success": true,
+      "deployment_failure": true,
+      "health_check_failure": true
+    }
+  },
+  "rollback_plan": {
+    "backup_strategy": "snapshot_before_deployment",
+    "rollback_commands": [
+      "restore_previous_pages_deployment",
+      "restore_previous_d1_snapshot",
+      "restore_previous_kv_data"
+    ]
+  }
+}
