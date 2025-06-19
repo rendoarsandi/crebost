@@ -14,13 +14,4 @@ NEXT_PUBLIC_ADMIN_URL = "https://admin.crebost.com"
 
 [[env.production.kv_namespaces]]
 binding = "CACHE"
-id = "YOUR_KV_NAMESPACE_ID"
-preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"
-
-[build]
-command = "npm run build"
-cwd = "."
-watch_dir = "src"
-
-[build.upload]
-format = "modules"
+id = "11ac1ff7bee34d709cb2dd15600a17150"

@@ -51,7 +51,7 @@ export const campaignMaterialSchema = z.object({
     .max(VALIDATION_CONSTANTS.MAX_DESCRIPTION_LENGTH),
 })
 
-export const createCampaignSchema = z.object({
+const baseCampaignSchema = z.object({
   title: z.string()
     .min(5, 'Title must be at least 5 characters')
     .max(VALIDATION_CONSTANTS.MAX_TITLE_LENGTH, 'Title must be less than 200 characters'),
@@ -71,7 +71,9 @@ export const createCampaignSchema = z.object({
   materials: z.array(campaignMaterialSchema).min(1, 'At least one material is needed'),
   startDate: z.string().datetime(),
   endDate: z.string().datetime(),
-}).refine(data => new Date(data.endDate) > new Date(data.startDate), {
+})
+
+export const createCampaignSchema = baseCampaignSchema.refine(data => new Date(data.endDate) > new Date(data.startDate), {
   message: 'End date must be after start date',
   path: ['endDate'],
 }).refine(data => data.budgetUsd >= data.ratePerViewerUsd * data.targetViewers, {
@@ -79,7 +81,7 @@ export const createCampaignSchema = z.object({
   path: ['budgetUsd'],
 })
 
-export const updateCampaignSchema = createCampaignSchema.partial()
+export const updateCampaignSchema = baseCampaignSchema.partial()
 
 // Promotion validations
 export const socialMediaMetricsSchema = z.object({

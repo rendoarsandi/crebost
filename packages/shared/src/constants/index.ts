@@ -94,18 +94,19 @@ export const STATUS_COLORS = {
   DRAFT: 'gray',
   ACTIVE: 'green',
   PAUSED: 'yellow',
-  COMPLETED: 'blue',
+  CAMPAIGN_COMPLETED: 'blue',
   CANCELLED: 'red',
-  
+
   // Promotion statuses
   PENDING: 'yellow',
   APPROVED: 'green',
   REJECTED: 'red',
-  
+  PROMOTION_COMPLETED: 'green',
+
   // Transaction statuses
-  COMPLETED: 'green',
+  TRANSACTION_COMPLETED: 'green',
   FAILED: 'red',
-  
+
   // User statuses
   SUSPENDED: 'yellow',
   BANNED: 'red',

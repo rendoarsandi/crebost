@@ -16,18 +16,16 @@ NEXT_PUBLIC_ADMIN_URL = "https://admin.crebost.com"
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "crebost-production"
-database_id = "YOUR_D1_DATABASE_ID"
+database_id = "23bed93f-2555c-4394-95d8-3408fd23e3e5"
 migrations_dir = "../../packages/database/migrations"
 
 [[env.production.kv_namespaces]]
 binding = "SESSIONS"
-id = "YOUR_SESSIONS_KV_NAMESPACE_ID"
-preview_id = "YOUR_PREVIEW_SESSIONS_KV_NAMESPACE_ID"
+id = "4ba509d0217e4fa3878c77b9df162ae79"
 
 [[env.production.kv_namespaces]]
 binding = "CACHE"
-id = "YOUR_CACHE_KV_NAMESPACE_ID"
-preview_id = "YOUR_PREVIEW_CACHE_KV_NAMESPACE_ID"
+id = "11ac1ff7bee34d709cb2dd15600a17150"
 
 [build]
 command = "npm run build"

@@ -1,0 +1,27 @@
+name = "crebost"
+compatibility_date = "2024-01-15"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "crebost-production"
+database_id = "23bed93f-2555c-4394-95d8-3408fd23e3e5"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "4ba509d0217e4fa3878c77b9df162ae79"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "11ac1ff7bee34d709cb2dd15600a17150"
+
+[[kv_namespaces]]
+binding = "ANALYTICS"
+id = "647612dcd178469bbf1b2809e4cb3451"
+
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "crebost-uploads"
+
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "crebost-static-assets"

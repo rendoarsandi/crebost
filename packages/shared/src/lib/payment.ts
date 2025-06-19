@@ -258,12 +258,13 @@ export function isPaymentSuccessful(status: PaymentStatus): boolean {
 
 // Helper function to check if payment is failed
 export function isPaymentFailed(status: PaymentStatus): boolean {
-  return [
+  const failedStatuses: PaymentStatus[] = [
     PAYMENT_STATUS.DENY,
     PAYMENT_STATUS.CANCEL,
     PAYMENT_STATUS.EXPIRE,
     PAYMENT_STATUS.FAILURE,
-  ].includes(status)
+  ]
+  return failedStatuses.includes(status)
 }
 
 // Helper function to generate order ID

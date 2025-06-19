@@ -14,7 +14,6 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "better-auth": "^0.7.0",
-    "@better-auth/prisma": "^0.7.0",
     "@tanstack/react-query": "^5.0.0",
     "axios": "^1.6.0",
     "react-hook-form": "^7.48.0",

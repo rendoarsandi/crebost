@@ -1,10 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    transpilePackages: ['@crebost/shared', '@crebost/ui'],
-  },
+  output: 'export',
+  trailingSlash: true,
+  transpilePackages: ['@crebost/shared', '@crebost/ui'],
   images: {
     domains: ['images.unsplash.com', 'via.placeholder.com'],
+    unoptimized: true,
   },
   async redirects() {
     return [
