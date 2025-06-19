@@ -6,6 +6,10 @@ import Link from 'next/link'
 import { authOptions } from '../lib/auth'
 import DashboardLayout from '../components/Layout/DashboardLayout'
 import { formatCurrency } from '@crebost/shared'
+import { Button } from '@crebost/ui'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@crebost/ui'
+import { Badge } from '@crebost/ui'
+import { Separator } from '@crebost/ui'
 
 export default function Dashboard() {
   const { data: session } = useSession()
@@ -56,13 +60,13 @@ export default function Dashboard() {
       </Head>
 
       <div className="py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <div className="container-custom">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-2xl font-semibold text-gray-900">
+            <h1 className="text-3xl font-bold text-foreground">
               Welcome back, {session?.user?.name}!
             </h1>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="mt-2 text-muted-foreground">
               Here's what's happening with your {session?.user?.role?.toLowerCase()} account today.
             </p>
           </div>
@@ -71,78 +75,78 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {session?.user?.role === 'CREATOR' && (
               <>
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
+                <Card className="card-hover">
+                  <CardContent className="p-6">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
-                        <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <svg className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                          </svg>
+                        </div>
                       </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">Total Campaigns</dt>
-                          <dd className="text-lg font-medium text-gray-900">{stats.creator.totalCampaigns}</dd>
-                        </dl>
+                      <div className="ml-4 flex-1">
+                        <p className="text-sm font-medium text-muted-foreground">Total Campaigns</p>
+                        <p className="text-2xl font-bold text-foreground">{stats.creator.totalCampaigns}</p>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
+                <Card className="card-hover">
+                  <CardContent className="p-6">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
-                        <svg className="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
+                        <div className="p-2 bg-green-500/10 rounded-lg">
+                          <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                          </svg>
+                        </div>
                       </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">Active Campaigns</dt>
-                          <dd className="text-lg font-medium text-gray-900">{stats.creator.activeCampaigns}</dd>
-                        </dl>
+                      <div className="ml-4 flex-1">
+                        <p className="text-sm font-medium text-muted-foreground">Active Campaigns</p>
+                        <p className="text-2xl font-bold text-foreground">{stats.creator.activeCampaigns}</p>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
+                <Card className="card-hover">
+                  <CardContent className="p-6">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
-                        <svg className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                        </svg>
+                        <div className="p-2 bg-blue-500/10 rounded-lg">
+                          <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                          </svg>
+                        </div>
                       </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">Total Spent</dt>
-                          <dd className="text-lg font-medium text-gray-900">{formatCurrency(stats.creator.totalSpent)}</dd>
-                        </dl>
+                      <div className="ml-4 flex-1">
+                        <p className="text-sm font-medium text-muted-foreground">Total Spent</p>
+                        <p className="text-2xl font-bold text-foreground">{formatCurrency(stats.creator.totalSpent)}</p>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
+                <Card className="card-hover">
+                  <CardContent className="p-6">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
-                        <svg className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
+                        <div className="p-2 bg-purple-500/10 rounded-lg">
+                          <svg className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        </div>
                       </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">Total Views</dt>
-                          <dd className="text-lg font-medium text-gray-900">{stats.creator.totalViews.toLocaleString()}</dd>
-                        </dl>
+                      <div className="ml-4 flex-1">
+                        <p className="text-sm font-medium text-muted-foreground">Total Views</p>
+                        <p className="text-2xl font-bold text-foreground">{stats.creator.totalViews.toLocaleString()}</p>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </>
             )}
 
@@ -225,85 +229,79 @@ export default function Dashboard() {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Quick Actions</h3>
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>Get started with common tasks</CardDescription>
+              </CardHeader>
+              <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {session?.user?.role === 'CREATOR' && (
                     <>
-                      <Link
-                        href="/creator/campaigns/new"
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-                      >
-                        Create Campaign
-                      </Link>
-                      <Link
-                        href="/analytics"
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                      >
-                        View Analytics
-                      </Link>
+                      <Button asChild>
+                        <Link href="/creator/campaigns/new">
+                          Create Campaign
+                        </Link>
+                      </Button>
+                      <Button variant="outline" asChild>
+                        <Link href="/analytics">
+                          View Analytics
+                        </Link>
+                      </Button>
                     </>
                   )}
                   {session?.user?.role === 'PROMOTER' && (
                     <>
-                      <Link
-                        href="/campaigns"
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-                      >
-                        Browse Campaigns
-                      </Link>
-                      <Link
-                        href="/withdrawals"
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                      >
-                        Request Withdrawal
-                      </Link>
+                      <Button asChild>
+                        <Link href="/campaigns">
+                          Browse Campaigns
+                        </Link>
+                      </Button>
+                      <Button variant="outline" asChild>
+                        <Link href="/withdrawals">
+                          Request Withdrawal
+                        </Link>
+                      </Button>
                     </>
                   )}
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Recent Activity */}
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Recent Activity</h3>
-                <div className="flow-root">
-                  <ul className="-mb-8">
-                    {recentActivity.map((activity, activityIdx) => (
-                      <li key={activity.id}>
-                        <div className="relative pb-8">
-                          {activityIdx !== recentActivity.length - 1 ? (
-                            <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true" />
-                          ) : null}
-                          <div className="relative flex space-x-3">
-                            <div>
-                              <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white ${
-                                activity.status === 'success' ? 'bg-green-500' : 
-                                activity.status === 'pending' ? 'bg-yellow-500' : 'bg-gray-500'
-                              }`}>
-                                <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                              </span>
-                            </div>
-                            <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                              <div>
-                                <p className="text-sm text-gray-500">{activity.title}</p>
-                              </div>
-                              <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                                <time>{activity.time}</time>
-                              </div>
-                            </div>
-                          </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+                <CardDescription>Your latest actions and updates</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentActivity.map((activity, activityIdx) => (
+                    <div key={activity.id} className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <Badge
+                          variant={
+                            activity.status === 'success' ? 'success' :
+                            activity.status === 'pending' ? 'warning' : 'secondary'
+                          }
+                          className="h-8 w-8 rounded-full p-0 flex items-center justify-center"
+                        >
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </Badge>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-foreground font-medium">{activity.title}</p>
+                          <p className="text-xs text-muted-foreground">{activity.time}</p>
                         </div>
-                      </li>
-                    ))}
-                  </ul>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

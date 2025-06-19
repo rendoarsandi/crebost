@@ -2,6 +2,11 @@ import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
+import { Button } from '@crebost/ui'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@crebost/ui'
+import { Badge } from '@crebost/ui'
+import { Separator } from '@crebost/ui'
+import { ThemeToggle } from '@crebost/ui'
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -16,221 +21,234 @@ export default function Home() {
       </Head>
 
       {/* Navigation */}
-      <nav className="bg-white shadow-lg fixed w-full z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border fixed w-full z-50">
+        <div className="container-custom">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold text-indigo-600">Crebost</h1>
+                <h1 className="text-2xl font-bold gradient-text">Crebost</h1>
               </div>
             </div>
-            
+
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">
+              <a href="#features" className="text-muted-foreground hover:text-primary px-3 py-2 text-sm font-medium transition-colors">
                 Fitur
               </a>
-              <a href="#how-it-works" className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">
+              <a href="#how-it-works" className="text-muted-foreground hover:text-primary px-3 py-2 text-sm font-medium transition-colors">
                 Cara Kerja
               </a>
-              <a href="#pricing" className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">
+              <a href="#pricing" className="text-muted-foreground hover:text-primary px-3 py-2 text-sm font-medium transition-colors">
                 Harga
               </a>
-              <Link 
-                href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signin`}
-                className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium"
-              >
-                Masuk
-              </Link>
-              <Link 
-                href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signup`}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700"
-              >
-                Daftar Gratis
-              </Link>
+              <ThemeToggle />
+              <Button variant="ghost" asChild>
+                <Link href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signin`}>
+                  Masuk
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signup`}>
+                  Daftar Gratis
+                </Link>
+              </Button>
             </div>
 
             <div className="md:hidden flex items-center">
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-gray-700 hover:text-indigo-600"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
-              </button>
+              </Button>
             </div>
           </div>
         </div>
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
-              <a href="#features" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-indigo-600">
+          <div className="md:hidden animate-slide-down">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-background border-t border-border">
+              <a href="#features" className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-primary transition-colors">
                 Fitur
               </a>
-              <a href="#how-it-works" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-indigo-600">
+              <a href="#how-it-works" className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-primary transition-colors">
                 Cara Kerja
               </a>
-              <a href="#pricing" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-indigo-600">
+              <a href="#pricing" className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-primary transition-colors">
                 Harga
               </a>
-              <Link 
-                href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signin`}
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-indigo-600"
-              >
-                Masuk
-              </Link>
-              <Link 
-                href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signup`}
-                className="block px-3 py-2 text-base font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-              >
-                Daftar Gratis
-              </Link>
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signin`}>
+                  Masuk
+                </Link>
+              </Button>
+              <Button className="w-full" asChild>
+                <Link href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signup`}>
+                  Daftar Gratis
+                </Link>
+              </Button>
             </div>
           </div>
         )}
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-20 pb-16 bg-gradient-to-br from-indigo-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-8 items-center">
-            <div className="mb-8 lg:mb-0">
-              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Kembangkan Konten Anda dengan 
-                <span className="text-indigo-600"> Promosi Berbayar</span>
+      <section className="section-padding bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+        <div className="container-custom">
+          <div className="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
+            <div className="mb-8 lg:mb-0 animate-fade-in">
+              <h1 className="text-hero text-foreground mb-6">
+                Kembangkan Konten Anda dengan
+                <span className="gradient-text"> Promosi Berbayar</span>
               </h1>
-              <p className="text-xl text-gray-600 mb-8">
-                Platform yang menghubungkan konten kreator dengan promoter untuk meningkatkan engagement, 
+              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+                Platform yang menghubungkan konten kreator dengan promoter untuk meningkatkan engagement,
                 followers, dan jangkauan konten Anda di berbagai platform sosial media.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link 
-                  href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signup`}
-                  className="bg-indigo-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-indigo-700 text-center"
-                >
-                  Mulai Sekarang
-                </Link>
-                <button className="border border-indigo-600 text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-indigo-50">
+                <Button size="lg" className="text-lg" asChild>
+                  <Link href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signup`}>
+                    Mulai Sekarang
+                  </Link>
+                </Button>
+                <Button variant="outline" size="lg" className="text-lg">
                   Lihat Demo
-                </button>
+                </Button>
               </div>
             </div>
-            <div className="relative">
-              <div className="bg-white rounded-lg shadow-xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Campaign Dashboard</h3>
-                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">Active</span>
-                </div>
-                <div className="space-y-3">
+            <div className="relative animate-slide-up">
+              <Card className="glass shadow-2xl">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Campaign Dashboard</CardTitle>
+                    <Badge variant="success">Active</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Budget:</span>
+                    <span className="text-muted-foreground">Budget:</span>
                     <span className="font-semibold">Rp 15,000,000</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Target Views:</span>
+                    <span className="text-muted-foreground">Target Views:</span>
                     <span className="font-semibold">100,000</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Current Views:</span>
-                    <span className="font-semibold text-indigo-600">75,432</span>
+                    <span className="text-muted-foreground">Current Views:</span>
+                    <span className="font-semibold text-primary">75,432</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-indigo-600 h-2 rounded-full" style={{ width: '75%' }}></div>
+                  <div className="space-y-2">
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div className="bg-primary h-2 rounded-full transition-all duration-1000" style={{ width: '75%' }}></div>
+                    </div>
+                    <div className="text-sm text-muted-foreground">75% Complete</div>
                   </div>
-                  <div className="text-sm text-gray-500">75% Complete</div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="features" className="section-padding bg-background">
+        <div className="container-custom">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-section-title text-foreground mb-4">
               Fitur Unggulan Platform
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Semua yang Anda butuhkan untuk mengembangkan konten dan mendapatkan engagement yang lebih tinggi
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Sistem Pembayaran Per View</h3>
-              <p className="text-gray-600">
-                Bayar hanya untuk view yang benar-benar didapat. Rate mulai dari Rp 1,500 per view dengan tracking yang akurat.
-              </p>
-            </div>
+            <Card className="text-center card-hover">
+              <CardContent className="pt-6">
+                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Sistem Pembayaran Per View</h3>
+                <p className="text-muted-foreground">
+                  Bayar hanya untuk view yang benar-benar didapat. Rate mulai dari Rp 1,500 per view dengan tracking yang akurat.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="text-center p-6">
-              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Analytics Real-time</h3>
-              <p className="text-gray-600">
-                Monitor performa campaign Anda secara real-time dengan dashboard analytics yang komprehensif.
-              </p>
-            </div>
+            <Card className="text-center card-hover">
+              <CardContent className="pt-6">
+                <div className="bg-green-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Analytics Real-time</h3>
+                <p className="text-muted-foreground">
+                  Monitor performa campaign Anda secara real-time dengan dashboard analytics yang komprehensif.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="text-center p-6">
-              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Multi-Platform Support</h3>
-              <p className="text-gray-600">
-                Dukung promosi di TikTok, Instagram, YouTube, Twitter, dan platform sosial media lainnya.
-              </p>
-            </div>
+            <Card className="text-center card-hover">
+              <CardContent className="pt-6">
+                <div className="bg-purple-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Multi-Platform Support</h3>
+                <p className="text-muted-foreground">
+                  Dukung promosi di TikTok, Instagram, YouTube, Twitter, dan platform sosial media lainnya.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="text-center p-6">
-              <div className="bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Keamanan Terjamin</h3>
-              <p className="text-gray-600">
-                Sistem keamanan berlapis dengan verifikasi promoter dan escrow payment untuk melindungi investasi Anda.
-              </p>
-            </div>
+            <Card className="text-center card-hover">
+              <CardContent className="pt-6">
+                <div className="bg-yellow-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Keamanan Terjamin</h3>
+                <p className="text-muted-foreground">
+                  Sistem keamanan berlapis dengan verifikasi promoter dan escrow payment untuk melindungi investasi Anda.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="text-center p-6">
-              <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Hasil Cepat</h3>
-              <p className="text-gray-600">
-                Dapatkan hasil promosi dalam 24-48 jam dengan network promoter yang sudah terverifikasi.
-              </p>
-            </div>
+            <Card className="text-center card-hover">
+              <CardContent className="pt-6">
+                <div className="bg-red-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Hasil Cepat</h3>
+                <p className="text-muted-foreground">
+                  Dapatkan hasil promosi dalam 24-48 jam dengan network promoter yang sudah terverifikasi.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="text-center p-6">
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Support 24/7</h3>
-              <p className="text-gray-600">
-                Tim support yang siap membantu Anda kapan saja untuk memastikan campaign berjalan lancar.
-              </p>
-            </div>
+            <Card className="text-center card-hover">
+              <CardContent className="pt-6">
+                <div className="bg-blue-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Support 24/7</h3>
+                <p className="text-muted-foreground">
+                  Tim support yang siap membantu Anda kapan saja untuk memastikan campaign berjalan lancar.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -360,90 +378,98 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="pricing" className="section-padding bg-secondary/20">
+        <div className="container-custom">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-section-title text-foreground mb-4">
               Harga yang Transparan
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Tidak ada biaya tersembunyi. Bayar hanya untuk hasil yang Anda dapatkan.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {/* Basic Plan */}
-            <div className="border border-gray-200 rounded-lg p-8 text-center">
-              <h3 className="text-xl font-semibold mb-4">Basic</h3>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">Rp 1,500</span>
-                <span className="text-gray-600">/view</span>
-              </div>
-              <ul className="space-y-3 mb-8 text-left">
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  TikTok & Instagram
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  Basic Analytics
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  Email Support
-                </li>
-              </ul>
-              <button className="w-full border border-indigo-600 text-indigo-600 py-2 rounded-lg hover:bg-indigo-50">
-                Mulai Basic
-              </button>
-            </div>
+            <Card className="text-center">
+              <CardHeader>
+                <CardTitle className="text-xl">Basic</CardTitle>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold">Rp 1,500</span>
+                  <span className="text-muted-foreground">/view</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-8 text-left">
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    TikTok & Instagram
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Basic Analytics
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Email Support
+                  </li>
+                </ul>
+                <Button variant="outline" className="w-full">
+                  Mulai Basic
+                </Button>
+              </CardContent>
+            </Card>
 
             {/* Pro Plan */}
-            <div className="border-2 border-indigo-600 rounded-lg p-8 text-center relative">
+            <Card className="text-center border-2 border-primary relative scale-105">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm">Populer</span>
+                <Badge>Populer</Badge>
               </div>
-              <h3 className="text-xl font-semibold mb-4">Pro</h3>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">Rp 1,200</span>
-                <span className="text-gray-600">/view</span>
-              </div>
-              <ul className="space-y-3 mb-8 text-left">
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  Semua Platform
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  Advanced Analytics
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  Priority Support
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  Campaign Optimization
-                </li>
-              </ul>
-              <button className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">
-                Mulai Pro
-              </button>
-            </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Pro</CardTitle>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold">Rp 1,200</span>
+                  <span className="text-muted-foreground">/view</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-8 text-left">
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Semua Platform
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Advanced Analytics
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Priority Support
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Campaign Optimization
+                  </li>
+                </ul>
+                <Button className="w-full">
+                  Mulai Pro
+                </Button>
+              </CardContent>
+            </Card>
 
             {/* Enterprise Plan */}
             <div className="border border-gray-200 rounded-lg p-8 text-center">
@@ -487,24 +513,23 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-indigo-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+      <section className="section-padding bg-gradient-to-r from-primary to-primary/80">
+        <div className="container-custom text-center">
+          <h2 className="text-section-title text-primary-foreground mb-4">
             Siap Mengembangkan Konten Anda?
           </h2>
-          <p className="text-xl text-indigo-100 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-primary-foreground/80 mb-8 max-w-3xl mx-auto">
             Bergabunglah dengan ribuan konten kreator yang sudah merasakan manfaat platform Crebost
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signup`}
-              className="bg-white text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100"
-            >
-              Daftar Gratis Sekarang
-            </Link>
-            <button className="border border-white text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-indigo-700">
+            <Button size="lg" variant="secondary" className="text-lg" asChild>
+              <Link href={`${process.env.NEXT_PUBLIC_AUTH_URL}/signup`}>
+                Daftar Gratis Sekarang
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
               Konsultasi Gratis
-            </button>
+            </Button>
           </div>
         </div>
       </section>
