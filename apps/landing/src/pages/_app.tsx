@@ -1,7 +1,6 @@
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
-import { ClientThemeProvider } from '@crebost/ui/src/components/client-theme-provider'
-import '@crebost/ui/src/styles/globals.css'
+import { ClientThemeProvider } from '@crebost/ui'
 import '../styles/globals.css'
 
 export default function App({ Component, pageProps }: AppProps) {

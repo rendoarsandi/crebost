@@ -115,8 +115,5 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-  ],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 }

@@ -10,7 +10,7 @@ NODE_ENV = "production"
 NEXT_PUBLIC_AUTH_URL = "https://crebost-auth.pages.dev"
 NEXT_PUBLIC_DASHBOARD_URL = "https://crebost-dashboard.pages.dev"
 NEXT_PUBLIC_ADMIN_URL = "https://crebost-admin.pages.dev"
-NEXT_PUBLIC_API_URL = "https://crebost-api.pages.dev"
+NEXT_PUBLIC_API_URL = "https://crebost-auth.pages.dev/api"
 
 [[env.production.kv_namespaces]]
 binding = "CACHE"

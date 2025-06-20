@@ -20,8 +20,8 @@
     "deploy:cloudflare": "./scripts/deploy-cloudflare.sh",
     "deploy:mcp": "./scripts/deploy-mcp-cloudflare.sh",
     "deploy:env": "./scripts/setup-env-vars.sh",
-    "deploy:full": "npm run deploy:setup && npm run deploy:cloudflare && npm run deploy:env",
-    "deploy:mcp-full": "npm run deploy:setup && npm run deploy:mcp",
+    "deploy:full": "bun run deploy:setup && bun run deploy:cloudflare && bun run deploy:env",
+    "deploy:mcp-full": "bun run deploy:setup && bun run deploy:mcp",
     "github:setup": "./scripts/setup-github.sh",
     "github:push": "git add . && git commit -m 'Update: Latest changes' && git push",
     "db:generate": "prisma generate",
@@ -39,6 +39,7 @@
   },
   "engines": {
     "node": ">=18.0.0",
-    "npm": ">=8.0.0"
-  }
+    "bun": ">=1.0.0"
+  },
+  "packageManager": "bun@1.2.16"
 }

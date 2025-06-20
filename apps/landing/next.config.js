@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: 'export', // Disabled for development
+  output: 'export', // Enable for production build
   trailingSlash: true,
   transpilePackages: ['@crebost/shared', '@crebost/ui'],
   images: {
