@@ -1,10 +1,9 @@
 name = "crebost-landing"
 compatibility_date = "2024-01-15"
-pages_build_output_dir = "dist"
+pages_build_output_dir = "out"
 
 [env.production]
 name = "crebost-landing"
-route = { pattern = "landing.crebost.com/*", zone_name = "crebost.com" }
 
 [env.production.vars]
 NODE_ENV = "production"
