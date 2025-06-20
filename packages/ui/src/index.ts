@@ -16,6 +16,7 @@ export * from './components/ui/theme-toggle'
 
 // Export theme provider
 export * from './components/theme-provider'
+export * from './components/client-theme-provider'
 
 // Export utilities
 export * from './lib/utils'

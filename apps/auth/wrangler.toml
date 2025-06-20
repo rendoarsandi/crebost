@@ -8,10 +8,10 @@ route = { pattern = "auth.crebost.com/*", zone_name = "crebost.com" }
 
 [env.production.vars]
 NODE_ENV = "production"
-NEXTAUTH_URL = "https://auth.crebost.com"
-NEXT_PUBLIC_LANDING_URL = "https://landing.crebost.com"
-NEXT_PUBLIC_DASHBOARD_URL = "https://dashboard.crebost.com"
-NEXT_PUBLIC_ADMIN_URL = "https://admin.crebost.com"
+BETTER_AUTH_URL = "https://crebost-auth.pages.dev"
+NEXT_PUBLIC_LANDING_URL = "https://crebost-landing.pages.dev"
+NEXT_PUBLIC_DASHBOARD_URL = "https://crebost-dashboard.pages.dev"
+NEXT_PUBLIC_ADMIN_URL = "https://crebost-admin.pages.dev"
 
 [[env.production.d1_databases]]
 binding = "DB"

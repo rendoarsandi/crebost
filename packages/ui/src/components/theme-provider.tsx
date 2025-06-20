@@ -26,11 +26,23 @@ export function ThemeProvider({
   storageKey = "crebost-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = React.useState<Theme>(
-    () => (localStorage?.getItem(storageKey) as Theme) || defaultTheme
-  )
+  const [theme, setTheme] = React.useState<Theme>(defaultTheme)
+  const [mounted, setMounted] = React.useState(false)
+
+  // Only run on client side after hydration
+  React.useEffect(() => {
+    setMounted(true)
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const storedTheme = window.localStorage.getItem(storageKey) as Theme
+      if (storedTheme) {
+        setTheme(storedTheme)
+      }
+    }
+  }, [storageKey])
 
   React.useEffect(() => {
+    if (!mounted) return
+
     const root = window.document.documentElement
 
     root.classList.remove("light", "dark")
@@ -46,12 +58,14 @@ export function ThemeProvider({
     }
 
     root.classList.add(theme)
-  }, [theme])
+  }, [theme, mounted])
 
   const value = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage?.setItem(storageKey, theme)
+      if (mounted && typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(storageKey, theme)
+      }
       setTheme(theme)
     },
   }
