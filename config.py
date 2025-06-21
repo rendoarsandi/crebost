@@ -85,3 +85,40 @@ if __name__ == '__main__':
     print(f"  Contoh Worker service untuk auth: {WORKER_SERVICE_AUTH}")
     print(f"  Contoh R2 Bucket untuk logs: {R2_BUCKET_LOGS}")
     print(f"  Contoh D1 Database ID: {D1_DATABASE_ID}")
+
+# --- Parameter Finansial & Fee (Baru Ditambahkan) ---
+
+# Tarif PPh Pasal 21 (atau PPh terkait lainnya) untuk withdrawal promotor.
+# Contoh: 2% = 0.02
+PROMOTER_WITHDRAWAL_PPH_RATE: float = 0.02
+
+# Tarif fee platform yang diambil dari withdrawal promotor.
+# Contoh: 10% = 0.10
+PROMOTER_PLATFORM_FEE_RATE: float = 0.10
+
+# Tarif fee platform yang dibebankan ke budget pemasang iklan saat payout ke kreator.
+# Fee ini dihitung berdasarkan jumlah payout ke kreator.
+# Contoh: 10% = 0.10
+CREATOR_PLATFORM_FEE_RATE_ON_ADVERTISER_BUDGET: float = 0.10
+
+
+if __name__ == '__main__':
+    print("Konfigurasi dimuat:")
+    print(f"  MEAN_NORMAL_ACTIVITY: {MEAN_NORMAL_ACTIVITY}")
+    print(f"  STD_DEV_NORMAL_ACTIVITY: {STD_DEV_NORMAL_ACTIVITY}")
+    print(f"  DEFAULT_MEASUREMENT_DURATION_MINUTES: {DEFAULT_MEASUREMENT_DURATION_MINUTES}")
+    print(f"  N_INTERVALS_PER_DAY: {N_INTERVALS_PER_DAY}")
+    print(f"  RATE_FEE_PER_ACTIVITY: {RATE_FEE_PER_ACTIVITY}")
+    print(f"  COST_PER_1000_RATE_UNITS: {COST_PER_1000_RATE_UNITS}")
+    print(f"  PREPAID_CREDIT_DISCOUNT_THRESHOLD_RATE_UNITS: {PREPAID_CREDIT_DISCOUNT_THRESHOLD_RATE_UNITS}")
+    print(f"  OVERAGE_FEE_MULTIPLIER: {OVERAGE_FEE_MULTIPLIER}")
+
+    print("\n  Parameter Finansial & Fee:")
+    print(f"  PROMOTER_WITHDRAWAL_PPH_RATE: {PROMOTER_WITHDRAWAL_PPH_RATE}")
+    print(f"  PROMOTER_PLATFORM_FEE_RATE: {PROMOTER_PLATFORM_FEE_RATE}")
+    print(f"  CREATOR_PLATFORM_FEE_RATE_ON_ADVERTISER_BUDGET: {CREATOR_PLATFORM_FEE_RATE_ON_ADVERTISER_BUDGET}")
+
+    print(f"\n  {PLACEHOLDER_MESSAGE}")
+    print(f"  Contoh Worker service untuk auth: {WORKER_SERVICE_AUTH}")
+    print(f"  Contoh R2 Bucket untuk logs: {R2_BUCKET_LOGS}")
+    print(f"  Contoh D1 Database ID: {D1_DATABASE_ID}")

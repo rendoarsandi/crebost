@@ -38,8 +38,23 @@ Proyek ini mengimplementasikan sistem untuk mendeteksi aktivitas bot berdasarkan
 *   `pricing_model.py`: Mengimplementasikan logika untuk model harga berbasis penggunaan.
 *   `config.py`: Menyimpan konstanta konfigurasi (misalnya, $\mu$, $\sigma$, `RateFee`, parameter harga).
 *   `cloudflare_integration.py`: Berisi kelas dan fungsi konseptual untuk menunjukkan bagaimana interaksi dengan layanan Cloudflare (Workers, D1, R2, DO) dapat dilakukan.
+*   `finance_processing.py`: Mengelola logika keuangan terkait fee platform, pemotongan pajak (PPh) untuk promotor, dan pemrosesan payout kreator dari budget iklan.
+*   `midtrans_integration.py`: Placeholder konseptual untuk integrasi dengan payment gateway Midtrans (simulasi).
 *   `wrangler_example.toml`: Contoh file konfigurasi `wrangler.toml` untuk deployment Cloudflare.
 *   `README.md`: File ini.
+
+## Alur Fee dan Pajak (Baru)
+
+1.  **Fee & PPh Withdrawal Promotor**:
+    *   Saat promotor melakukan withdrawal, total 12% dipotong dari jumlah withdrawal kotor.
+    *   Rincian: 10% untuk fee platform, 2% untuk PPh (pajak penghasilan).
+    *   Logika ini ada di `finance_processing.process_promoter_withdrawal`.
+
+2.  **Fee Payout Kreator**:
+    *   Saat kreator menerima payout, platform mengambil fee sebesar 10% dari jumlah payout kreator tersebut.
+    *   Fee ini **dibebankan tambahan ke budget pemasang iklan**, bukan dipotong dari payout kreator.
+    *   Contoh: Jika kreator payout Rp1.000.000, maka platform fee Rp100.000. Total yang ditarik dari budget iklan adalah Rp1.100.000. Kreator tetap menerima Rp1.000.000.
+    *   Logika ini ada di `finance_processing.process_creator_payout_from_budget`.
 
 ## Cara Kerja (Simulasi)
 
@@ -65,9 +80,11 @@ python main.py
 ```
 Ini akan mencetak output dari berbagai skenario pengguna (normal, bot level A, bot level B, dll.) beserta hasil deteksi dan estimasi payout.
 
-Modul lain seperti `pricing_model.py` juga dapat dijalankan secara individual untuk melihat contoh perhitungannya:
+Modul lain seperti `pricing_model.py` dan `finance_processing.py` juga dapat dijalankan secara individual untuk melihat contoh perhitungannya masing-masing:
 ```bash
 python pricing_model.py
+python finance_processing.py
+python midtrans_integration.py
 ```
 
 ## Pengembangan Lebih Lanjut
