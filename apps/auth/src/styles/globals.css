@@ -1,0 +1,13 @@
+/*
+  This file is for app-specific global styles for 'apps/auth'.
+  Base styles, Tailwind directives (@tailwind base, components, utilities),
+  and CSS variable definitions are primarily handled by `packages/ui/src/styles/globals.css`
+  which should be pulled in via the ThemeProvider (e.g., ClientThemeProvider) in `_app.tsx`.
+
+  Add auth-app-specific global styles here only if absolutely necessary.
+  Prefer Tailwind utility classes or component-scoped styles.
+*/
+
+html {
+  scroll-behavior: smooth; /* Example: if auth pages can be long */
+}

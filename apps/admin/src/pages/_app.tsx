@@ -1,16 +1,17 @@
 import type { AppProps } from 'next/app'
 import { SessionProvider } from 'next-auth/react'
-import { ThemeProvider } from '@crebost/ui'
+import { ClientThemeProvider } from '@crebost/ui' // Changed to ClientThemeProvider
 import Head from 'next/head'
 import '../styles/globals.css'
-import '@crebost/ui/src/styles/globals.css'
+// Removed direct import of @crebost/ui/src/styles/globals.css
+// ClientThemeProvider should handle the necessary base styles from the UI package.
 
 export default function App({
   Component,
   pageProps: { session, ...pageProps },
 }: AppProps) {
   return (
-    <ThemeProvider defaultTheme="system" storageKey="crebost-admin-theme">
+    <ClientThemeProvider defaultTheme="system" storageKey="crebost-admin-theme">
       <SessionProvider session={session}>
         <Head>
           <title>Admin Panel - Crebost</title>
@@ -20,6 +21,6 @@ export default function App({
         </Head>
         <Component {...pageProps} />
       </SessionProvider>
-    </ThemeProvider>
+    </ClientThemeProvider>
   )
 }

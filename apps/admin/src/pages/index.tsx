@@ -1,107 +1,119 @@
 import { GetServerSideProps } from 'next'
-import { getServerSession } from 'next-auth'
 import Head from 'next/head'
 import Link from 'next/link'
-import { authOptions } from '../lib/auth'
 import AdminLayout from '../components/Layout/AdminLayout'
 import { formatCurrency } from '@crebost/shared'
-import { Button } from '@crebost/ui'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@crebost/ui'
-import { Badge } from '@crebost/ui'
-import { Alert, AlertDescription } from '@crebost/ui'
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Alert, AlertDescription } from '@crebost/ui'
+import { Users, Megaphone, Briefcase, DollarSign, ShieldAlert, HandCoins, BarChart3, CheckCircle, Info, AlertCircle as LucideAlertCircle, Activity as ActivityIcon } from 'lucide-react'
+import { authOptions, Session } from '../lib/auth' // Assuming Session type is exported from auth.ts
+import { getServerSession } from 'next-auth/next' // Using next-auth/next for getServerSession
+
+
+// Interface for stat items for cleaner mapping
+interface AdminStatCardItem {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+  iconColorClass: string;
+  bgColorClass: string;
+  subText?: string;
+  subTextColorClass?: string;
+}
+
+// Interface for recent activity items
+interface RecentActivityItem {
+  id: number;
+  type: string;
+  title: string;
+  time: string;
+  status: 'info' | 'warning' | 'success' | 'error';
+  icon: React.ElementType;
+}
+
+// Interface for pending actions
+interface PendingActionItem {
+  id: number;
+  type: string;
+  title: string;
+  description: string;
+  action: string;
+  href: string;
+  urgent: boolean;
+  icon: React.ElementType;
+}
+
 
 export default function AdminDashboard() {
-  const stats = {
-    totalUsers: 1247,
-    totalCreators: 342,
-    totalPromoters: 905,
-    activeCampaigns: 23,
-    totalCampaigns: 156,
-    pendingPromotions: 45,
-    totalPromotions: 892,
-    pendingWithdrawals: 12,
-    totalRevenue: 125000000, // IDR
-    monthlyRevenue: 18500000, // IDR
-    pendingReports: 8,
-    totalReports: 67,
-  }
+  // Mock data - in a real app, this would come from an API
+  const statsData: AdminStatCardItem[] = [
+    { title: 'Total Users', value: (1247).toLocaleString(), icon: Users, iconColorClass: 'text-blue-600', bgColorClass: 'bg-blue-600/10', subText: `${(342).toLocaleString()} Creators, ${(905).toLocaleString()} Promoters`, subTextColorClass: 'text-muted-foreground' },
+    { title: 'Campaigns', value: (156).toLocaleString(), icon: Megaphone, iconColorClass: 'text-green-600', bgColorClass: 'bg-green-600/10', subText: `${(23).toLocaleString()} Active`, subTextColorClass: 'text-green-600' },
+    { title: 'Promotions', value: (892).toLocaleString(), icon: Briefcase, iconColorClass: 'text-purple-600', bgColorClass: 'bg-purple-600/10', subText: `${(45).toLocaleString()} Pending Review`, subTextColorClass: 'text-yellow-600' },
+    { title: 'Total Revenue', value: formatCurrency(125000000), icon: DollarSign, iconColorClass: 'text-yellow-600', bgColorClass: 'bg-yellow-600/10', subText: `${formatCurrency(18500000)} This Month`, subTextColorClass: 'text-green-600' },
+  ];
 
-  const recentActivity = [
-    {
-      id: 1,
-      type: 'user_registered',
-      title: 'New user registered: John Doe (Creator)',
-      time: '5 minutes ago',
-      status: 'info',
-    },
-    {
-      id: 2,
-      type: 'withdrawal_requested',
-      title: 'Withdrawal request: Rp 2,500,000 by Sarah Kim',
-      time: '15 minutes ago',
-      status: 'warning',
-    },
-    {
-      id: 3,
-      type: 'campaign_completed',
-      title: 'Campaign "Summer Fashion" completed successfully',
-      time: '1 hour ago',
-      status: 'success',
-    },
-    {
-      id: 4,
-      type: 'report_submitted',
-      title: 'New report submitted against user @techreviewer',
-      time: '2 hours ago',
-      status: 'error',
-    },
-    {
-      id: 5,
-      type: 'promotion_approved',
-      title: 'Promotion approved for "Tech Product Review"',
-      time: '3 hours ago',
-      status: 'success',
-    },
-  ]
+  const quickStatsData: AdminStatCardItem[] = [
+    { title: 'Pending Reports', value: 8, icon: ShieldAlert, iconColorClass: 'text-red-600', bgColorClass: 'bg-red-600/10', subText: 'View all reports →', href: '/reports' },
+    { title: 'Pending Withdrawals', value: 12, icon: HandCoins, iconColorClass: 'text-orange-600', bgColorClass: 'bg-orange-600/10', subText: 'Process withdrawals →', href: '/withdrawals' },
+    { title: 'Platform Analytics', value: 'View Details', icon: BarChart3, iconColorClass: 'text-primary', bgColorClass: 'bg-primary/10', subText: 'View analytics →', href: '/analytics' },
+  ];
 
-  const pendingActions = [
-    {
-      id: 1,
-      type: 'withdrawal',
-      title: 'Withdrawal Request',
-      description: 'Rp 2,500,000 - Sarah Kim',
-      action: 'Review',
-      href: '/withdrawals',
-      urgent: true,
-    },
-    {
-      id: 2,
-      type: 'report',
-      title: 'User Report',
-      description: 'Spam complaint against @techreviewer',
-      action: 'Investigate',
-      href: '/reports',
-      urgent: true,
-    },
-    {
-      id: 3,
-      type: 'promotion',
-      title: 'Promotion Review',
-      description: '12 promotions pending approval',
-      action: 'Review',
-      href: '/promotions',
-      urgent: false,
-    },
-    {
-      id: 4,
-      type: 'campaign',
-      title: 'Campaign Verification',
-      description: '3 campaigns need verification',
-      action: 'Verify',
-      href: '/campaigns',
-      urgent: false,
-    },
-  ]
+  const recentActivity: RecentActivityItem[] = [
+    { id: 1, type: 'user_registered', title: 'New user: John Doe (Creator)', time: '5m ago', status: 'info', icon: Users },
+    { id: 2, type: 'withdrawal_requested', title: `Withdrawal: ${formatCurrency(2500000)} by S. Kim`, time: '15m ago', status: 'warning', icon: HandCoins },
+    { id: 3, type: 'campaign_completed', title: 'Campaign "Summer Fashion" ended', time: '1h ago', status: 'success', icon: Megaphone },
+    { id: 4, type: 'report_submitted', title: 'Report: @techreviewer (spam)', time: '2h ago', status: 'error', icon: ShieldAlert },
+    { id: 5, type: 'promotion_approved', title: 'Promotion approved: "Tech Review"', time: '3h ago', status: 'success', icon: Briefcase },
+  ];
+
+  const pendingActions: PendingActionItem[] = [
+    { id: 1, type: 'withdrawal', title: 'Withdrawal Request', description: `${formatCurrency(2500000)} - Sarah Kim`, action: 'Review', href: '/withdrawals', urgent: true, icon: HandCoins },
+    { id: 2, type: 'report', title: 'User Report', description: 'Spam: @techreviewer', action: 'Investigate', href: '/reports', urgent: true, icon: ShieldAlert },
+    { id: 3, type: 'promotion', title: 'Promotion Review', description: '12 pending approval', action: 'Review', href: '/promotions', urgent: false, icon: Briefcase },
+    { id: 4, type: 'campaign', title: 'Campaign Verification', description: '3 need verification', action: 'Verify', href: '/campaigns', urgent: false, icon: Megaphone },
+  ];
+
+  const AdminStatCard = ({ title, value, icon: Icon, iconColorClass, bgColorClass, subText, subTextColorClass, href }: AdminStatCardItem & { href?: string }) => (
+    <Card className="transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-0.5">
+      <CardContent className="p-6">
+        <div className="flex items-center">
+          <div className={`flex-shrink-0 p-3 rounded-lg ${bgColorClass}`}>
+            <Icon className={`h-6 w-6 ${iconColorClass}`} />
+          </div>
+          <div className="ml-4 flex-1">
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <p className="text-2xl font-bold text-foreground">{value}</p>
+          </div>
+        </div>
+        {subText && (
+          <div className={`mt-3 text-sm ${subTextColorClass || 'text-muted-foreground'}`}>
+            {href ? (
+              <Button variant="link" asChild className="p-0 h-auto text-sm">
+                <Link href={href}>{subText}</Link>
+              </Button>
+            ) : (
+              subText
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const RecentActivityBadgeIcon = ({ status, icon: Icon }: { status: RecentActivityItem['status'], icon: React.ElementType }) => {
+    let badgeVariant: "success" | "warning" | "info" | "destructive" | "default" | "secondary" | "outline" | null | undefined = 'default';
+    if (status === 'success') badgeVariant = 'success';
+    else if (status === 'warning') badgeVariant = 'warning';
+    else if (status === 'error') badgeVariant = 'destructive';
+    else if (status === 'info') badgeVariant = 'info';
+
+    return (
+      <Badge variant={badgeVariant} className="h-8 w-8 rounded-full p-0 flex items-center justify-center">
+        <Icon className="h-4 w-4" />
+      </Badge>
+    );
+  };
+
 
   return (
     <AdminLayout>
@@ -109,292 +121,71 @@ export default function AdminDashboard() {
         <title>Admin Dashboard - Crebost</title>
       </Head>
 
-      <div className="py-6">
-        <div className="container-custom">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-            <p className="mt-2 text-muted-foreground">
-              Overview of platform activity and pending actions
-            </p>
-          </div>
+      <div className="py-8 px-4 sm:px-6 lg:px-8 container mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
+          <p className="mt-1 text-muted-foreground">Overview of platform activity and pending actions.</p>
+        </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {/* Users Stats */}
-            <Card className="card-hover">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="p-2 bg-blue-500/10 rounded-lg">
-                      <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-                    <p className="text-2xl font-bold text-foreground">{stats.totalUsers.toLocaleString()}</p>
-                  </div>
-                </div>
-                <div className="mt-3 text-sm text-muted-foreground">
-                  <span className="text-green-600 font-medium">{stats.totalCreators}</span> Creators, <span className="text-blue-600 font-medium">{stats.totalPromoters}</span> Promoters
-                </div>
-              </CardContent>
-            </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {statsData.map(stat => <AdminStatCard key={stat.title} {...stat} />)}
+        </div>
 
-            {/* Campaigns Stats */}
-            <Card className="card-hover">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="p-2 bg-green-500/10 rounded-lg">
-                      <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <p className="text-sm font-medium text-muted-foreground">Campaigns</p>
-                    <p className="text-2xl font-bold text-foreground">{stats.totalCampaigns}</p>
-                  </div>
-                </div>
-                <div className="mt-3 text-sm text-muted-foreground">
-                  <span className="text-green-600 font-medium">{stats.activeCampaigns}</span> Active
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Promotions Stats */}
-            <Card className="card-hover">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="p-2 bg-purple-500/10 rounded-lg">
-                      <svg className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <p className="text-sm font-medium text-muted-foreground">Promotions</p>
-                    <p className="text-2xl font-bold text-foreground">{stats.totalPromotions}</p>
-                  </div>
-                </div>
-                <div className="mt-3 text-sm text-muted-foreground">
-                  <span className="text-yellow-600 font-medium">{stats.pendingPromotions}</span> Pending Review
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Revenue Stats */}
-            <Card className="card-hover">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="p-2 bg-yellow-500/10 rounded-lg">
-                      <svg className="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                    <p className="text-2xl font-bold text-foreground">{formatCurrency(stats.totalRevenue)}</p>
-                  </div>
-                </div>
-                <div className="mt-3 text-sm text-muted-foreground">
-                  <span className="text-green-600 font-medium">{formatCurrency(stats.monthlyRevenue)}</span> This Month
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Pending Actions */}
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Pending Actions</CardTitle>
-                  <CardDescription>Items that require your immediate attention</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {pendingActions.map((action) => (
-                      <Alert
-                        key={action.id}
-                        variant={action.urgent ? 'destructive' : 'default'}
-                        className="p-4"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <h4 className="text-sm font-medium">
-                                {action.title}
-                              </h4>
-                              {action.urgent && (
-                                <Badge variant="destructive">
-                                  Urgent
-                                </Badge>
-                              )}
-                            </div>
-                            <AlertDescription className="mt-1">
-                              {action.description}
-                            </AlertDescription>
-                          </div>
-                          <div className="ml-4">
-                            <Button
-                              variant={action.urgent ? 'destructive' : 'default'}
-                              size="sm"
-                              asChild
-                            >
-                              <Link href={action.href}>
-                                {action.action}
-                              </Link>
-                            </Button>
-                          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Pending Actions</CardTitle>
+                <CardDescription>Items that require your immediate attention.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {pendingActions.map((item) => (
+                    <Alert key={item.id} variant={item.urgent ? 'destructive' : 'default'} className="p-4">
+                       <item.icon className={`h-5 w-5 ${item.urgent ? 'text-destructive' : 'text-foreground'}`} />
+                      <div className="ml-3 flex-1 md:flex md:items-center md:justify-between">
+                        <div>
+                           <AlertDescription className="font-medium">{item.title}</AlertDescription>
+                           <AlertDescription className="text-xs text-muted-foreground">{item.description}</AlertDescription>
                         </div>
-                      </Alert>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Activity */}
-            <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Latest platform events and actions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {recentActivity.map((activity) => (
-                      <div key={activity.id} className="flex items-start space-x-4">
-                        <div className="flex-shrink-0">
-                          <Badge
-                            variant={
-                              activity.status === 'success' ? 'success' :
-                              activity.status === 'warning' ? 'warning' :
-                              activity.status === 'error' ? 'destructive' : 'info'
-                            }
-                            className="h-8 w-8 rounded-full p-0 flex items-center justify-center"
-                          >
-                            {activity.status === 'success' && (
-                              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                            {activity.status === 'warning' && (
-                              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                            {activity.status === 'error' && (
-                              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                            {activity.status === 'info' && (
-                              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </Badge>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm text-foreground font-medium">{activity.title}</p>
-                            <p className="text-xs text-muted-foreground">{activity.time}</p>
-                          </div>
-                        </div>
+                        <Button variant={item.urgent ? 'destructive' : 'outline'} size="sm" asChild className="mt-2 md:mt-0 md:ml-4">
+                          <Link href={item.href}>{item.action}</Link>
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="card-hover">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="p-2 bg-red-500/10 rounded-lg">
-                      <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <p className="text-sm font-medium text-muted-foreground">Pending Reports</p>
-                    <p className="text-2xl font-bold text-foreground">{stats.pendingReports}</p>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href="/reports">
-                      View all reports →
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-hover">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="p-2 bg-orange-500/10 rounded-lg">
-                      <svg className="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <p className="text-sm font-medium text-muted-foreground">Pending Withdrawals</p>
-                    <p className="text-2xl font-bold text-foreground">{stats.pendingWithdrawals}</p>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href="/withdrawals">
-                      Process withdrawals →
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-hover">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <svg className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <p className="text-sm font-medium text-muted-foreground">Platform Analytics</p>
-                    <p className="text-2xl font-bold text-foreground">View Details</p>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href="/analytics">
-                      View analytics →
-                    </Link>
-                  </Button>
+                    </Alert>
+                  ))}
+                   {pendingActions.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No pending actions.</p>}
                 </div>
               </CardContent>
             </Card>
           </div>
+
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+                <CardDescription>Latest platform events.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-1">
+                  {recentActivity.map((activity) => (
+                    <div key={activity.id} className="flex items-center space-x-3 py-2.5 border-b border-border last:border-b-0">
+                      <RecentActivityBadgeIcon status={activity.status} icon={activity.icon} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground font-medium truncate" title={activity.title}>{activity.title}</p>
+                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {recentActivity.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No recent activity.</p>}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {quickStatsData.map(stat => <AdminStatCard key={stat.title} {...stat} href={stat.href} />)}
         </div>
       </div>
     </AdminLayout>
@@ -402,29 +193,21 @@ export default function AdminDashboard() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getServerSession(context.req, context.res, authOptions)
+  const session = await getServerSession(context.req, context.res, authOptions) as Session | null;
 
   if (!session) {
-    return {
-      redirect: {
-        destination: `${process.env.NEXT_PUBLIC_AUTH_URL}/signin`,
-        permanent: false,
-      },
-    }
+    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3001';
+    return { redirect: { destination: `${authUrl}/signin`, permanent: false } };
   }
 
-  if (session.user.role !== 'ADMIN') {
-    return {
-      redirect: {
-        destination: '/unauthorized',
-        permanent: false,
-      },
-    }
+  if (session.user?.role !== 'ADMIN') {
+    // Redirect to a generic unauthorized page or dashboard if not an admin
+    return { redirect: { destination: process.env.NEXT_PUBLIC_DASHBOARD_URL || '/', permanent: false } };
   }
 
   return {
     props: {
-      session,
+      session, // Pass session to the page
     },
   }
 }
