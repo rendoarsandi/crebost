@@ -79,15 +79,24 @@ model Promotion {
   id              String  @id @default(cuid())
   campaignId      String  @map("campaign_id")
   promoterId      String  @map("promoter_id")
-  platform        String  // TIKTOK, INSTAGRAM, YOUTUBE, TWITTER, FACEBOOK
-  contentUrl      String  @map("content_url")
-  proofUrl        String? @map("proof_url")
-  viewersCount    Int     @default(0) @map("viewers_count")
-  engagementData  String? @map("engagement_data") // JSON as string
-  earningsIdr     Float   @default(0) @map("earnings_idr")
-  status          String  @default("PENDING") // PENDING, APPROVED, REJECTED, COMPLETED
-  submittedAt     DateTime          @default(now()) @map("submitted_at")
-  approvedAt      DateTime?         @map("approved_at")
+  // platform        String  // TIPE LAMA, DIHAPUS ATAU DIGANTI JIKA PERLU -> Detail di PromotionPost
+  // contentUrl      String  @map("content_url") // TIPE LAMA, URL detail ada di PromotionPost
+  proofUrl        String? @map("proof_url") // Mungkin masih relevan untuk bukti manual awal
+
+  // Field metrik dan earning lama mungkin perlu dihitung ulang atau divalidasi dari PromotionPost & PlatformMetricSnapshot
+  // viewersCount    Int     @default(0) @map("viewers_count")
+  // engagementData  String? @map("engagement_data")
+  // earningsIdr     Float   @default(0) @map("earnings_idr")
+
+  overallBotStatus String?  @default("NOT_ANALYZED") @map("overall_bot_status") // NOT_ANALYZED, ANALYZING, VERIFIED_NORMAL, FLAGGED_SUSPICIOUS, CONFIRMED_BOT
+  totalVerifiedViews BigInt?    @map("total_verified_views") // Menggunakan BigInt
+  totalVerifiedLikes BigInt?    @map("total_verified_likes") // Menggunakan BigInt
+  totalVerifiedComments BigInt? @map("total_verified_comments") // Menggunakan BigInt
+  calculatedEarningsIdr Float? @map("calculated_earnings_idr") // Payout yang dihitung setelah verifikasi
+
+  status          String  @default("PENDING") // PENDING (menunggu submit postingan), AWAITING_METRICS, UNDER_REVIEW, APPROVED (metrik valid), REJECTED, COMPLETED (dibayar)
+  submittedAt     DateTime          @default(now()) @map("submitted_at") // Mungkin lebih cocok di PromotionPost jika promotor submit banyak post
+  approvedAt      DateTime?         @map("approved_at") // Setelah metrik diverifikasi & disetujui
   rejectedAt      DateTime?         @map("rejected_at")
   rejectionReason String?           @map("rejection_reason")
   createdAt       DateTime          @default(now()) @map("created_at")
@@ -97,8 +106,55 @@ model Promotion {
   campaign        Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   promoter        User              @relation(fields: [promoterId], references: [id], onDelete: Cascade)
   reports         Report[]
+  promotionPosts  PromotionPost[]   // Relasi baru
 
   @@map("promotions")
+}
+
+model PromotionPost {
+  id                  String   @id @default(cuid())
+  promotionId         String   @map("promotion_id")
+  platform            SocialPlatform // TIKTOK, INSTAGRAM, YOUTUBE
+  postUrl             String   @unique @map("post_url") // URL lengkap postingan promotor
+  externalPostId      String?  @map("external_post_id") // ID postingan di platform sosmed (jika bisa diekstrak/diperlukan)
+
+  submittedAt         DateTime @default(now()) @map("submitted_at")
+  lastCheckedAt       DateTime? @map("last_checked_at") // Kapan terakhir metrik diambil dari API
+  nextCheckAt         DateTime? @map("next_check_at")   // Kapan dijadwalkan untuk dicek lagi
+
+  fetchStatus         String   @default("PENDING_FETCH") @map("fetch_status") // PENDING_FETCH, FETCHING, FETCHED_SUCCESS, FETCHED_ERROR, API_LIMIT
+  botAnalysisStatus   String   @default("NOT_ANALYZED") @map("bot_analysis_status") // NOT_ANALYZED, ANALYZING, NORMAL, SUSPICIOUS, BOT
+  errorMessage        String?  @map("error_message") // Jika ada error saat fetch API
+
+  // Relasi
+  promotion           Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  metricSnapshots     PlatformMetricSnapshot[]
+
+  @@index([promotionId])
+  @@index([platform, externalPostId]) // Indeks untuk pencarian cepat
+  @@map("promotion_posts")
+}
+
+model PlatformMetricSnapshot {
+  id                String   @id @default(cuid())
+  promotionPostId   String   @map("promotion_post_id")
+  fetchedAt         DateTime @default(now()) @map("fetched_at") // Timestamp kapan data ini diambil
+
+  views             BigInt?
+  likes             BigInt?
+  comments          BigInt?
+  shares            BigInt?   // Opsional, jika platform menyediakan
+  // Tambahkan metrik spesifik platform lain jika perlu
+  // E.g., YouTube: averageViewDuration, watchTimeHours
+  // E.g., TikTok: videoDuration
+
+  rawData           Json?    // Opsional: Simpan respons JSON mentah dari API untuk audit/debug
+
+  // Relasi
+  promotionPost     PromotionPost @relation(fields: [promotionPostId], references: [id], onDelete: Cascade)
+
+  @@index([promotionPostId, fetchedAt]) // Indeks untuk query time-series
+  @@map("platform_metric_snapshots")
 }
 
 model Transaction {
@@ -200,73 +256,46 @@ model CampaignAnalytics {
   @@map("campaign_analytics")
 }
 
-// Bot Detection Feature Models
+// MODEL LAMA (DARI RENCANA SEBELUMNYA) DIHAPUS/DIKOMENTARI:
+// model ActivityLog { ... }
+// model UserHourlyActivity { ... }
+// model UserDailyMetric { ... }
+// model BotThreshold { ... } // Akan diganti dengan versi baru
 
-model ActivityLog {
-  id          String    @id @default(cuid())
-  userId      String    @map("user_id") // Pengguna yang melakukan aktivitas
-  promotionId String?   @map("promotion_id") // Promosi terkait (jika ada)
-  activityType String   @map("activity_type") // VIEW, LIKE, COMMENT
-  ipAddress   String?   @map("ip_address")
-  userAgent   String?   @map("user_agent")
-  createdAt   DateTime  @default(now()) @map("created_at")
 
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  promotion Promotion? @relation(fields: [promotionId], references: [id], onDelete:SetNull)
+// --- MODEL BARU DAN MODIFIKASI UNTUK METRIK EKSTERNAL ---
 
-  @@index([userId, createdAt])
-  @@index([promotionId, createdAt])
-  @@map("activity_logs")
+enum SocialPlatform {
+  TIKTOK
+  INSTAGRAM
+  YOUTUBE
+  // TWITTER
+  // FACEBOOK
 }
 
-model UserHourlyActivity {
-  id                      String   @id @default(cuid())
-  userId                  String   @map("user_id")
-  hourStartTimestamp      DateTime @map("hour_start_timestamp")
-  totalViews              Int      @default(0) @map("total_views")
-  totalLikes              Int      @default(0) @map("total_likes")
-  totalComments           Int      @default(0) @map("total_comments")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, hourStartTimestamp])
-  @@map("user_hourly_activities")
-}
-
-model UserDailyMetric {
-  id                            String   @id @default(cuid())
-  userId                        String   @map("user_id")
-  date                          DateTime @map("date")
-  averageActivitiesPerMinute    Float    @map("average_activities_per_minute")
-  totalPayoutIdr                Float?   @default(0) @map("total_payout_idr")
-  botDetectionLevel             String?  @map("bot_detection_level") // NORMAL, WARNING_LEVEL_B, BANNED_LEVEL_A
-  botDetectionReason            String?  @map("bot_detection_reason")
-  isPayoutAllowed               Boolean  @default(true) @map("is_payout_allowed")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, date])
-  @@map("user_daily_metrics")
-}
-
+// Modifikasi BotThreshold
 model BotThreshold {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  mean        Float    @map("mean_mu")
-  stdDev      Float    @map("std_dev_sigma")
-  levelAMultiplier      Float    @default(3.0) @map("level_a_multiplier")
-  levelBMinMultiplier   Float    @default(2.0) @map("level_b_min_multiplier")
-  levelBMaxMultiplier   Float    @default(3.0) @map("level_b_max_multiplier")
-  description String?
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id                  String   @id @default(cuid())
+  name                String   @unique // e.g., "tiktok_daily_view_increase_threshold", "global_like_view_ratio"
+  platform            SocialPlatform? // Bisa spesifik per platform
+  metricType          String   // e.g., "DAILY_VIEW_INCREASE", "LIKE_VIEW_RATIO", "COMMENT_VIEW_RATIO", "VIEW_SPIKE_FACTOR"
+
+  mean                Float?   @map("mean_mu")
+  stdDev              Float?   @map("std_dev_sigma")
+
+  lowerBound          Float?   @map("lower_bound")
+  upperBound          Float?   @map("upper_bound")
+
+  levelAMultiplier    Float?   @default(3.0) @map("level_a_multiplier")
+  levelBMinMultiplier Float?   @default(2.0) @map("level_b_min_multiplier")
+  levelBMaxMultiplier Float?   @default(3.0) @map("level_b_max_multiplier")
+
+  analysisWindow      Int?     @map("analysis_window_hours")
+
+  description         String?
+  isActive            Boolean  @default(true) @map("is_active")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
 
   @@map("bot_thresholds")
 }

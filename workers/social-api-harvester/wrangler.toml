@@ -1,0 +1,27 @@
+name = "social-api-harvester"
+main = "src/index.js" # Menunjuk ke output build JavaScript
+compatibility_date = "2024-02-22"
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "crebost-production" # Sesuai konfigurasi Anda
+database_id = "23bed93f-2555c-4394-95d8-3408fd23e3e5" # Sesuai konfigurasi Anda
+
+# Queue Consumer Binding
+[[queues.consumers]]
+queue = "metric-harvest-queue" # Nama queue yang akan dibuat nanti
+max_batch_size = 5
+max_batch_timeout = 30
+max_retries = 3
+# dead_letter_queue = "metric-harvest-dlq" # Opsional
+
+# Environment Variables / Secrets
+# [vars]
+# YOUTUBE_API_KEY = "YOUR_YOUTUBE_API_KEY_IF_USED"
+
+# Secrets untuk OAuth client aplikasi Anda jika worker ini melakukan refresh token atas nama aplikasi (bukan pengguna)
+# atau untuk kredensial API lainnya yang sensitif.
+# Gunakan `wrangler secret put SECRET_NAME`
+# Contoh:
+# SECRET_TIKTOK_APP_CLIENT_SECRET = "" (jika diperlukan untuk beberapa alur server-to-server)
