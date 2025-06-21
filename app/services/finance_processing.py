@@ -1,7 +1,7 @@
 # Modul untuk memproses logika keuangan, termasuk payout, fee, dan pajak.
 
 try:
-    import config
+    from app import config # Diubah dari 'import config'
 except ModuleNotFoundError:
     # Fallback sederhana jika config.py tidak ditemukan secara langsung.
     # Ini berguna jika modul dijalankan secara terpisah atau dalam struktur folder yang berbeda.
@@ -89,21 +89,26 @@ def process_promoter_withdrawal(user_id: str, gross_withdrawal_amount: float) ->
         }
 
 
-    tax_deducted = gross_withdrawal_amount * pph_rate
-    platform_fee = gross_withdrawal_amount * platform_fee_rate
+    tax_deducted_raw = gross_withdrawal_amount * pph_rate
+    platform_fee_raw = gross_withdrawal_amount * platform_fee_rate
 
-    net_payout = gross_withdrawal_amount - tax_deducted - platform_fee
+    # Bulatkan komponen fee dan pajak terlebih dahulu
+    rounded_tax_deducted = round(tax_deducted_raw, 2)
+    rounded_platform_fee = round(platform_fee_raw, 2)
+
+    # Hitung net payout dari gross dikurangi komponen yang sudah dibulatkan
+    net_payout_calculated = gross_withdrawal_amount - rounded_tax_deducted - rounded_platform_fee
 
     # Pastikan net_payout tidak negatif karena pembulatan atau tarif yang sangat tinggi
-    if net_payout < 0:
-        net_payout = 0 # Atau bisa juga dilempar error, tergantung kebijakan bisnis
+    if net_payout_calculated < 0:
+        net_payout_calculated = 0 # Atau bisa juga dilempar error, tergantung kebijakan bisnis
 
     return {
         "user_id": user_id,
         "gross_amount": round(gross_withdrawal_amount, 2),
-        "platform_fee": round(platform_fee, 2),
-        "tax_deducted": round(tax_deducted, 2),
-        "net_payout": round(net_payout, 2),
+        "platform_fee": rounded_platform_fee, # Sudah dibulatkan
+        "tax_deducted": rounded_tax_deducted, # Sudah dibulatkan
+        "net_payout": round(net_payout_calculated, 2), # Bulatkan hasil akhir juga
         "error": None
     }
 

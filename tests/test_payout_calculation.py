@@ -6,10 +6,11 @@ import os
 # Asumsi file ada di root
 
 try:
-    import payout_calculation
-    import config # Dibutuhkan jika payout_calculation menggunakan konstanta dari config secara internal
+    from app.services import payout_calculation
+    from app import config
 except ModuleNotFoundError:
-    print("Pastikan payout_calculation.py dan config.py berada di PYTHONPATH atau direktori yang sama.")
+    print("Gagal mengimpor modul aplikasi. Pastikan PYTHONPATH sudah benar atau jalankan tes dari root proyek.")
+    print("Contoh: python -m unittest discover")
     sys.exit(1)
 
 class TestPayoutCalculation(unittest.TestCase):

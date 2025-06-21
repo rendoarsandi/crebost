@@ -17,6 +17,8 @@ except ModuleNotFoundError:
 # dalam calculate_usage_cost_with_overage (misalnya, ketika credit_limit_units adalah None
 # dan tidak ada logika overage yang kompleks diperlukan selain diskon volume).
 
+from app import config # Diubah dari 'import config' (jika sebelumnya ada di top level)
+
 def calculate_usage_cost_with_overage(total_rate_units: int, credit_limit_units: int | None = None) -> tuple[float, str]:
     """
     Menghitung biaya penggunaan dengan memperhitungkan diskon volume dan potensi overage fee.

@@ -3,10 +3,10 @@ import sys
 
 # Asumsi file ada di root dan config.py juga dapat dijangkau
 try:
-    import finance_processing
-    import config
+    from app.services import finance_processing
+    from app import config
 except ModuleNotFoundError:
-    print("Pastikan finance_processing.py dan config.py berada di PYTHONPATH atau direktori yang sama.")
+    print("Gagal mengimpor modul aplikasi. Pastikan PYTHONPATH sudah benar atau jalankan tes dari root proyek.")
     # Jika ingin menjalankan tes ini secara terpisah dan modul tidak ditemukan,
     # Anda mungkin perlu menyesuaikan sys.path seperti contoh di file tes lain.
     # sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))

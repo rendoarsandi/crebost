@@ -1,4 +1,5 @@
 import math
+from app import config # Diubah dari 'import config'
 
 def calculate_rate_per_minute(views: int, likes: int, comments: int, duration_minutes: float) -> float:
     """

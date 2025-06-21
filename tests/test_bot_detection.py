@@ -4,15 +4,19 @@ import os
 
 # Menambahkan path ke direktori root proyek agar modul dapat diimpor
 # Ini mungkin perlu disesuaikan tergantung struktur direktori dan bagaimana tes dijalankan
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) # Seharusnya tidak diperlukan jika dijalankan dengan 'python -m unittest discover' dari root
 # Jika file tes berada di direktori yang sama dengan modul yang diuji, ini tidak perlu.
 # Karena kita berasumsi semua file ada di root, impor langsung seharusnya bekerja.
 
 try:
-    import bot_detection
-    import config
+    from app.core import bot_detection
+    from app import config
 except ModuleNotFoundError:
-    print("Pastikan bot_detection.py dan config.py berada di PYTHONPATH atau direktori yang sama.")
+    # Ini bisa terjadi jika tes dijalankan sebagai skrip individual dari dalam direktori 'tests'
+    # tanpa root proyek ada di PYTHONPATH.
+    # 'python -m unittest discover' dari root proyek adalah cara yang lebih disarankan.
+    print("Gagal mengimpor modul aplikasi. Pastikan PYTHONPATH sudah benar atau jalankan tes dari root proyek.")
+    print("Contoh: python -m unittest discover")
     sys.exit(1)
 
 class TestBotDetection(unittest.TestCase):
@@ -70,4 +74,7 @@ class TestBotDetection(unittest.TestCase):
         self.assertIn("tidak dikenal", bot_detection.handle_bot_detection_action("X", user_id_test))
 
 if __name__ == '__main__':
+    # Menjalankan tes sebagai skrip akan bekerja jika direktori root proyek ada di PYTHONPATH.
+    # Cara yang lebih standar: python -m unittest tests.test_bot_detection
+    # atau 'python -m unittest discover' dari root.
     unittest.main()

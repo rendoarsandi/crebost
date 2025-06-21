@@ -1,10 +1,10 @@
 import json
 from datetime import datetime
 try:
-    import config
+    from app import config # Diubah dari 'import config'
 except ModuleNotFoundError:
     # Fallback jika dijalankan secara standalone atau config tidak di root
-    print("Warning: config.py not found. Using default placeholder values for CloudflareIntegration.")
+    print("Warning: app.config not found. Using default placeholder values for CloudflareIntegration.")
     class PlaceholderConfig:
         CLOUDFLARE_ACCOUNT_ID = "YOUR_CLOUDFLARE_ACCOUNT_ID"
         CLOUDFLARE_API_TOKEN = "YOUR_CLOUDFLARE_API_TOKEN" # Hati-hati dengan token ini

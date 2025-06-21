@@ -106,7 +106,7 @@ if __name__ == '__main__':
     print(f"Views: {views_recent}, Likes: {likes_recent}, Comments: {comments_recent}")
 
     # Menggunakan data ini dengan bot_detection
-    import bot_detection
+    from app.core import bot_detection # Diubah dari 'import bot_detection'
 
     # Hitung Rate_per_min untuk seluruh sesi sejauh ini
     # Perhatian: Durasi pengukuran (T) dalam rumus Rate_per_min adalah durasi pengukuran,

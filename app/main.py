@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 
 # Import modul-modul yang sudah dibuat
-import config
-import user_activity
-import bot_detection
-import payout_calculation
+from app import config
+from app.core import user_activity
+from app.core import bot_detection
+from app.services import payout_calculation
 # cloudflare_integration tidak di-import secara langsung untuk eksekusi utama di sini,
 # karena itu lebih untuk arsitektur worker.
 
