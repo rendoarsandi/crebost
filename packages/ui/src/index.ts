@@ -13,6 +13,8 @@ export * from './components/ui/select'
 export * from './components/ui/alert'
 export * from './components/ui/dropdown-menu'
 export * from './components/ui/theme-toggle'
+export * from './components/ui/tabs'
+export * from './components/ui/gradient-text' // Added GradientText export
 
 // Export theme provider
 export * from './components/theme-provider'

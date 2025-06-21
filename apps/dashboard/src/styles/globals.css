@@ -1,0 +1,20 @@
+/*
+  This file is for app-specific global styles for 'apps/dashboard'.
+  Base styles, Tailwind directives (@tailwind base, components, utilities),
+  and CSS variable definitions are primarily handled by `packages/ui/src/styles/globals.css`
+  which should be pulled in via the ClientThemeProvider in `_app.tsx`.
+
+  Add dashboard-app-specific global styles here only if absolutely necessary.
+  Prefer Tailwind utility classes or component-scoped styles.
+*/
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Example: Dashboard specific body style if needed, though prefer to keep body styles in packages/ui */
+/*
+body {
+  background-color: var(--muted);
+}
+*/

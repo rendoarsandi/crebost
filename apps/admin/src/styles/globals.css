@@ -1,0 +1,13 @@
+/*
+  This file is for app-specific global styles for 'apps/admin'.
+  Base styles, Tailwind directives (@tailwind base, components, utilities),
+  and CSS variable definitions are primarily handled by `packages/ui/src/styles/globals.css`
+  which should be pulled in via the ClientThemeProvider in `_app.tsx`.
+
+  Add admin-app-specific global styles here only if absolutely necessary.
+  Prefer Tailwind utility classes or component-scoped styles.
+*/
+
+html {
+  scroll-behavior: smooth;
+}
