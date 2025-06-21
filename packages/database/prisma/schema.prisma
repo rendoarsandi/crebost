@@ -200,6 +200,77 @@ model CampaignAnalytics {
   @@map("campaign_analytics")
 }
 
+// Bot Detection Feature Models
+
+model ActivityLog {
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id") // Pengguna yang melakukan aktivitas
+  promotionId String?   @map("promotion_id") // Promosi terkait (jika ada)
+  activityType String   @map("activity_type") // VIEW, LIKE, COMMENT
+  ipAddress   String?   @map("ip_address")
+  userAgent   String?   @map("user_agent")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promotion Promotion? @relation(fields: [promotionId], references: [id], onDelete:SetNull)
+
+  @@index([userId, createdAt])
+  @@index([promotionId, createdAt])
+  @@map("activity_logs")
+}
+
+model UserHourlyActivity {
+  id                      String   @id @default(cuid())
+  userId                  String   @map("user_id")
+  hourStartTimestamp      DateTime @map("hour_start_timestamp")
+  totalViews              Int      @default(0) @map("total_views")
+  totalLikes              Int      @default(0) @map("total_likes")
+  totalComments           Int      @default(0) @map("total_comments")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, hourStartTimestamp])
+  @@map("user_hourly_activities")
+}
+
+model UserDailyMetric {
+  id                            String   @id @default(cuid())
+  userId                        String   @map("user_id")
+  date                          DateTime @map("date")
+  averageActivitiesPerMinute    Float    @map("average_activities_per_minute")
+  totalPayoutIdr                Float?   @default(0) @map("total_payout_idr")
+  botDetectionLevel             String?  @map("bot_detection_level") // NORMAL, WARNING_LEVEL_B, BANNED_LEVEL_A
+  botDetectionReason            String?  @map("bot_detection_reason")
+  isPayoutAllowed               Boolean  @default(true) @map("is_payout_allowed")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("user_daily_metrics")
+}
+
+model BotThreshold {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  mean        Float    @map("mean_mu")
+  stdDev      Float    @map("std_dev_sigma")
+  levelAMultiplier      Float    @default(3.0) @map("level_a_multiplier")
+  levelBMinMultiplier   Float    @default(2.0) @map("level_b_min_multiplier")
+  levelBMaxMultiplier   Float    @default(3.0) @map("level_b_max_multiplier")
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("bot_thresholds")
+}
+
 // NextAuth.js models
 model Account {
   id                String  @id @default(cuid())

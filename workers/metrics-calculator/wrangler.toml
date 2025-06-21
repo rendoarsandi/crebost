@@ -1,0 +1,36 @@
+name = "metrics-calculator"
+main = "src/index.js" # Menunjuk ke output build JavaScript
+compatibility_date = "2024-02-22" # Menggunakan tanggal yang lebih baru
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB" # Sesuai dengan konfigurasi yang ada
+database_name = "crebost-production" # Sesuai dengan konfigurasi yang ada
+database_id = "23bed93f-2555c-4394-95d8-3408fd23e3e5" # Sesuai dengan konfigurasi yang ada (dari root wrangler.toml)
+
+# Cron Triggers
+# Dokumentasi: https://developers.cloudflare.com/workers/platform/cron-triggers/
+[triggers]
+# Cron untuk mengupdate UserHourlyActivity.
+# Contoh: "5 * * * *" = pada menit ke-5 setiap jam. Ini akan memproses log dari jam penuh sebelumnya.
+# Misalnya, jika berjalan pada 10:05, ia akan memproses log dari 09:00:00 hingga 09:59:59.
+cron_hourly_aggregation = "5 * * * *"
+
+# Cron untuk mengupdate UserDailyMetric.
+# Contoh: "15 0 * * *" = pada pukul 00:15 UTC setiap hari.
+# Ini akan memproses UserHourlyActivity dari hari UTC sebelumnya.
+cron_daily_aggregation = "15 0 * * *"
+
+# Cron untuk mengupdate BotThresholds (mu dan sigma) secara periodik.
+# Contoh: "0 1 * * 1" = pada pukul 01:00 UTC setiap Senin.
+cron_weekly_threshold_update = "0 1 * * 1"
+
+# Catatan: Nama trigger (cron_hourly_aggregation, cron_daily_aggregation, cron_weekly_threshold_update) adalah label
+# untuk referensi Anda dan akan muncul di log. Event `scheduled` di worker akan
+# menerima properti `event.cron` yang cocok dengan string jadwal (misalnya, "5 * * * *").
+# Kita akan menggunakan `event.cron` di dalam kode worker untuk menjalankan logika yang benar.
+
+# [vars]
+# Jika ada variabel lingkungan yang dibutuhkan.
+
+# Pastikan worker ini juga ditambahkan ke `turbo.json` jika relevan.

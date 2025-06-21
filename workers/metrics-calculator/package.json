@@ -1,0 +1,22 @@
+{
+  "name": "metrics-calculator-worker",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc --outDir dist",
+    "dev": "wrangler dev src/index.ts --local --persist",
+    "deploy": "wrangler deploy --minify dist/index.js",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@prisma/adapter-d1": "^5.10.0",
+    "@prisma/client": "^5.10.0",
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240222.0",
+    "typescript": "^5.3.3",
+    "prettier": "^3.2.5"
+  }
+}

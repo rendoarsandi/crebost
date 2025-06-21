@@ -1,0 +1,117 @@
+name = "activity-tracker"
+main = "dist/index.js" # Menunjuk ke output build JavaScript
+compatibility_date = "2023-10-26" # Sesuaikan dengan tanggal terbaru atau yang relevan
+
+# Bindings
+[[d1_databases]]
+binding = "DB" # Sesuai dengan konfigurasi yang ada
+database_name = "crebost-production" # Sesuai dengan konfigurasi yang ada
+database_id = "23bed93f-2555c-4394-95d8-3408fd23e3e5" # Sesuai dengan konfigurasi yang ada (dari root wrangler.toml)
+
+# Jika worker perlu mengakses variabel environment lain (misalnya, secret untuk JWT)
+# [vars]
+# JWT_SECRET = "your_jwt_secret_key"
+
+# Jika worker ini perlu di-route dari domain custom, tambahkan konfigurasi routes
+# Contoh:
+# [[routes]]
+# pattern = "api.yourdomain.com/track"
+# custom_domain = true
+#
+# Atau jika menggunakan service environments di top-level wrangler.toml
+# services = [
+#   { binding = "ACTIVITY_TRACKER_SERVICE", service = "activity-tracker", environment = "production" }
+# ]
+#
+# Untuk testing lokal dengan wrangler dev, biasanya tidak perlu konfigurasi route spesifik di sini,
+# kecuali jika Anda ingin mensimulasikan path tertentu.
+# Port default untuk wrangler dev adalah 8787. Worker akan tersedia di http://localhost:8787
+# Jika Anda memiliki top-level wrangler.toml yang mengatur semua worker,
+# Anda mungkin perlu mengintegrasikan konfigurasi ini ke sana atau merujuknya.
+# Untuk saat ini, ini adalah wrangler.toml yang berdiri sendiri untuk worker ini.
+# Pastikan untuk menyesuaikan `database_name` dan `database_id`.
+# Jika Anda belum membuat database D1, Anda perlu melakukannya.
+# `wrangler d1 create <DATABASE_NAME>`
+# Kemudian update `database_id` di sini.
+#
+# Untuk penggunaan Prisma, Anda juga perlu memastikan skema sudah di-migrate ke D1:
+# `npx prisma db push` (jika menggunakan SQLite lokal dan ingin push ke D1)
+# atau `npx prisma migrate deploy` (jika menggunakan Prisma Migrate dengan D1)
+# Ini biasanya dilakukan dari direktori `packages/database/`.
+#
+# Perlu juga `package.json` untuk worker ini yang menyertakan `@prisma/client` dan `@prisma/adapter-d1`.
+# Dan proses build untuk TypeScript ke JavaScript jika `main` menunjuk ke file `.ts`.
+# Cloudflare workers mendukung TypeScript secara native, tapi ada baiknya ada build step.
+# Jika `main` adalah `.js`, maka perlu kompilasi TS ke JS.
+# Mengubah main ke "src/index.ts" menyiratkan bahwa Cloudflare akan menangani build TS.
+# Jika Anda memiliki proses build sendiri (misal dengan esbuild atau tsup), sesuaikan `main`.
+# Untuk kesederhanaan, kita asumsikan Cloudflare menangani build TS.
+#
+# Jika Anda menggunakan NextAuth.js dan sesi disimpan di DB, worker ini perlu
+# environment variable untuk DATABASE_URL yang menunjuk ke D1, sama seperti aplikasi Next.js Anda.
+# Namun, Prisma adapter untuk D1 menggunakan binding, jadi `DATABASE_URL` di `.env` Prisma
+# mungkin tidak secara langsung digunakan oleh worker dalam konteks D1 binding.
+# Prisma Client di worker akan diinisialisasi menggunakan D1 binding.
+#
+# [vars]
+# DATABASE_URL = "prisma://accelerate.prisma-data.net/?api_key=YOUR_ACCELERATE_API_KEY" // Jika pakai Accelerate
+# atau variabel lain yang dibutuhkan untuk Prisma Client
+# Untuk D1, binding di atas sudah cukup untuk koneksi Prisma.
+# env.DB akan tersedia di worker.
+#
+# Pastikan juga untuk menambahkan worker ini ke `turbo.json` jika Anda menggunakan Turborepo
+# untuk proses build dan dev.
+#
+# Binding untuk KV Store atau R2 jika diperlukan untuk caching atau logging tambahan.
+# [[kv_namespaces]]
+# binding = "MY_KV_NAMESPACE"
+# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#
+# [[r2_buckets]]
+# binding = "MY_R2_BUCKET"
+# bucket_name = "my-bucket"
+
+# Untuk pengembangan lokal, Anda mungkin ingin mensimulasikan D1 dengan file SQLite.
+# [d1_databases.preview]
+# binding = "DB"
+# database_name = "local-db-name"
+# database_id = "local-db-id" # Ini bisa jadi nama file .sqlite di .wrangler/state
+
+# Sebaiknya gunakan `wrangler d1 create <DB_NAME>` dan `wrangler d1 execute <DB_NAME> --file=./schema.sql`
+# untuk setup D1. Prisma akan menangani skema via `db push` atau `migrate deploy`.
+# Untuk lokal, `wrangler.toml` bisa dikonfigurasi untuk menggunakan file .sqlite:
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "my_database"
+# database_id = "unique-id-for-my-database" # Digunakan oleh wrangler
+# local_path = ".wrangler/db/your_db_file.sqlite3" # Wrangler akan membuat dan menggunakan file ini
+# migrations_dir = "packages/database/prisma/migrations" # Jika menggunakan Prisma Migrate
+#
+# Namun, karena Prisma sudah dikonfigurasi di `packages/database` dan menggunakan `env("DATABASE_URL")`
+# untuk SQLite, kita perlu memastikan konfigurasi D1 di sini konsisten.
+# Jika `packages/database/prisma/schema.prisma` memiliki `datasource db { provider = "sqlite" ... }`,
+# dan Anda ingin worker ini menggunakan D1, Anda mungkin perlu:
+# 1. Memastikan `DATABASE_URL` untuk D1 (biasanya tidak ada, karena binding digunakan).
+# 2. Atau, jika Prisma Client di worker diinstansiasi hanya dengan adapter D1, itu sudah cukup.
+#
+# Untuk D1, `database_id` adalah yang paling penting setelah database dibuat di Cloudflare.
+# `database_name` adalah alias yang Anda gunakan di Cloudflare.
+#
+# Mari kita sederhanakan untuk D1 binding yang sebenarnya:
+# ```toml
+# name = "activity-tracker"
+# main = "src/index.ts"
+# compatibility_date = "2023-10-26"
+#
+# [[d1_databases]]
+# binding = "DB" # Ini adalah nama variabel yang akan ada di env worker, cth: env.DB
+# database_name = "YOUR_CLOUDFLARE_D1_DATABASE_NAME" # Nama database di dashboard Cloudflare
+# database_id = "YOUR_CLOUDFLARE_D1_DATABASE_ID"   # ID unik database dari Cloudflare
+#
+# # Jika Anda menggunakan Prisma Accelerate dengan D1, Anda mungkin perlu API Key
+# # [vars]
+# # PRISMA_ACCELERATE_API_KEY = "your_api_key"
+# #
+# # Namun, dengan @prisma/adapter-d1, binding D1 sudah cukup.
+# ```
+# Saya akan menggunakan versi sederhana ini. Ganti placeholder dengan nilai sebenarnya.
