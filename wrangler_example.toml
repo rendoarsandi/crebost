@@ -1,0 +1,312 @@
+# Contoh file wrangler.toml
+# Ini adalah file konfigurasi untuk Cloudflare Workers dan Pages.
+# Sesuaikan dengan kebutuhan proyek Anda.
+
+name = "my-cloudflare-project" # Nama proyek Anda
+main = "src/worker.js" # Titik masuk untuk Worker Anda (jika menggunakan satu worker utama)
+compatibility_date = "2023-10-30" # Tanggal kompatibilitas API Cloudflare
+
+# Konfigurasi untuk multiple workers (jika Anda memiliki layanan terpisah)
+# Anda mungkin memiliki struktur direktori seperti:
+# - services/
+#   - auth_worker/
+#     - src/index.js
+#     - wrangler.toml (atau konfigurasi di sini)
+#   - landing_worker/
+#     - src/index.js
+#     - wrangler.toml (atau konfigurasi di sini)
+#
+# Atau, Anda bisa mendefinisikan beberapa worker dalam satu file wrangler.toml
+# dengan menentukan direktori kerja atau entry point yang berbeda,
+# namun, pola umum adalah satu wrangler.toml per worker atau menggunakan
+# konfigurasi top-level untuk Pages Functions.
+
+# Contoh untuk Pages (jika Anda mendeploy ke Cloudflare Pages dengan Functions)
+# [pages_build]
+#   command = "npm run build" # Perintah untuk membangun frontend Anda
+#   upload_dir = "dist"       # Direktori output build frontend
+
+# --- Rute untuk Layanan/Workers ---
+# Pola ini lebih umum jika Anda memiliki beberapa worker yang dideploy secara independen
+# dan kemudian di-route dari dashboard Cloudflare atau melalui API.
+# Jika menggunakan Pages Functions, routing biasanya berdasarkan struktur direktori di folder 'functions'.
+
+# Bagian [[routes]] yang diberikan dalam deskripsi masalah tampaknya adalah
+# bagaimana Anda akan mengkonfigurasi rute di dashboard Cloudflare
+# atau jika Anda menggunakan sistem routing kustom yang membaca konfigurasi ini.
+# Wrangler sendiri (terutama v2+) lebih fokus pada konfigurasi per-worker.
+# Namun, kita bisa memasukkannya sebagai contoh bagaimana rute tersebut diinginkan.
+
+# Catatan: Sintaks [[routes]] di wrangler.toml biasanya untuk worker tunggal yang menangani banyak rute.
+# Jika 'auth', 'landing', dll., adalah worker yang berbeda, masing-masing akan punya `name` sendiri
+# dan mungkin dideploy secara terpisah. Rute kemudian diatur di Cloudflare.
+#
+# Jika "landing", "auth", "dashboard", "admin" adalah NAMA DARI WORKERS YANG BERBEDA,
+# maka masing-masing worker akan memiliki file wrangler.toml sendiri atau bagian konfigurasinya sendiri.
+# Contoh:
+#
+# Untuk worker 'auth':
+# name = "auth"
+# main = "src/auth_worker.ts" # atau .js
+# compatibility_date = "2023-11-21"
+#
+# [[routes]]
+# pattern = "auth.domain.com/*"
+# zone_name = "domain.com" # atau zone_id
+#
+# Demikian pula untuk 'landing', 'dashboard', 'admin'.
+
+# Jika Anda ingin mensimulasikan bagaimana ini mungkin terlihat jika semua dikelola
+# dari satu file konfigurasi untuk tujuan informasi (bukan untuk deploy langsung dengan satu worker):
+# (Ini lebih merupakan representasi dari pengaturan routing di Cloudflare daripada konfigurasi wrangler.toml standar untuk multi-worker)
+
+# [[routes]] # Ini untuk worker utama yang didefinisikan di atas (misal `my-cloudflare-project`)
+# pattern = "example.com/main-worker/*"
+# zone_name = "example.com"
+
+# Deskripsi rute yang diinginkan dari problem description:
+# Ini lebih merupakan bagaimana Anda akan mengatur DNS dan routing di Cloudflare
+# untuk mengarahkan subdomain ke layanan Worker yang sesuai.
+# Setiap layanan (auth, landing, dashboard, admin) akan menjadi Worker terpisah
+# dengan konfigurasi wrangler.toml-nya sendiri.
+
+# Contoh jika "landing" adalah nama worker:
+# File: landing_worker/wrangler.toml
+# name = "landing"
+# main = "src/index.js" # atau path ke entry point worker "landing"
+# compatibility_date = "2023-01-01"
+# [[routes]]
+#   pattern = "landing.domain.com/*"
+#   zone_name = "domain.com" # atau zone_id
+
+# Contoh jika "auth" adalah nama worker:
+# File: auth_worker/wrangler.toml
+# name = "auth"
+# main = "src/index.js" # atau path ke entry point worker "auth"
+# compatibility_date = "2023-01-01"
+# [[routes]]
+#   pattern = "auth.domain.com/*"
+#   zone_name = "domain.com" # atau zone_id
+
+# ... dan seterusnya untuk "dashboard" dan "admin".
+
+# Karena diminta untuk membuat file `wrangler_example.toml` yang mencerminkan
+# bagian [[routes]] dari deskripsi, kita akan menampilkannya di sini,
+# dengan catatan bahwa ini mengasumsikan ada worker bernama "landing", "auth", dll.
+# atau bahwa worker utama (misal "my-cloudflare-project") dikonfigurasi untuk
+# menangani rute ini dan kemudian mendelegasikan secara internal (kurang umum untuk subdomain).
+
+# Format yang paling mendekati dari deskripsi jika ini untuk *satu* worker yang
+# memiliki *services* (fitur yang lebih baru untuk binding antar worker, atau environment per service):
+# Ini adalah interpretasi, karena `service = "..."` dalam `[[routes]]` tidak standar.
+# Standarnya adalah `script = "worker_name"` jika merujuk worker lain dari dalam worker (jarang di routes).
+# Atau `custom_domain = true` jika pattern adalah custom domain untuk worker tsb.
+
+# Menyajikan rute seperti yang diminta, dengan asumsi ini adalah bagian dari konfigurasi
+# yang lebih besar atau representasi dari bagaimana rute diatur di Cloudflare:
+
+# --- Representasi Konseptual Rute dari Deskripsi ---
+# Ini BUKAN sintaks wrangler.toml yang valid untuk mendefinisikan multiple workers
+# dan routingnya sekaligus dengan cara ini. Setiap worker akan punya `name` dan `[[routes]]` sendiri.
+# Namun, untuk tujuan contoh, kita akan daftar seperti ini:
+
+# Rute untuk layanan 'landing'
+# (Akan ada di wrangler.toml milik worker 'landing')
+# name = "landing"
+# [[routes]]
+#   pattern = "landing.domain.com/*"
+#   zone_name = "domain.com" # atau zone_id = "YOUR_ZONE_ID"
+
+# Rute untuk layanan 'auth'
+# (Akan ada di wrangler.toml milik worker 'auth')
+# name = "auth"
+# [[routes]]
+#   pattern = "auth.domain.com/*"
+#   zone_name = "domain.com"
+
+# Rute untuk layanan 'dashboard'
+# (Akan ada di wrangler.toml milik worker 'dashboard')
+# name = "dashboard"
+# [[routes]]
+#   pattern = "dashboard.domain.com/*"
+#   zone_name = "domain.com"
+
+# Rute untuk layanan 'admin'
+# (Akan ada di wrangler.toml milik worker 'admin')
+# name = "admin"
+# [[routes]]
+#   pattern = "admin.domain.com/*"
+#   zone_name = "domain.com"
+
+# --- Contoh Binding (jika worker utama perlu berinteraksi dengan layanan lain) ---
+# [vars]
+#   AUTH_SERVICE_URL = "https://auth.domain.com"
+#   ADMIN_SERVICE_URL = "https://admin.domain.com"
+
+# [d1_databases]
+#   DB = { binding = "DB", database_name = "my-d1-database", database_id = "YOUR_D1_DB_ID" }
+
+# [[r2_buckets]]
+#   binding = "LOG_BUCKET"
+#   bucket_name = "my-activity-logs"
+#   preview_bucket_name = "my-activity-logs-preview" # Opsional
+
+# [[durable_objects.bindings]]
+#   name = "USER_STATE_DO"
+#   class_name = "UserStateDO" # Nama class Durable Object Anda
+#   script_name = "user-state-worker" # Jika DO didefinisikan di worker lain
+
+# Untuk menyajikan persis seperti yang ada di deskripsi masalah di bagian wrangler.toml:
+# Ini mengasumsikan ada worker/layanan bernama "landing", "auth", "dashboard", "admin"
+# yang dirujuk. Dalam wrangler.toml modern, `service` dalam `[[routes]]` lebih ke
+# mengaitkan route dengan environment worker tertentu jika worker punya multiple environments.
+# Atau jika ini adalah konfigurasi untuk semacam gateway/proxy.
+
+# Jika kita harus meniru blok tersebut persis:
+# (Dengan catatan bahwa ini mungkin memerlukan konteks tambahan atau versi wrangler tertentu)
+# Biasanya, `service` di `[[routes]]` tidak digunakan untuk menunjuk ke *worker lain* secara langsung.
+# `script` adalah properti yang digunakan untuk worker yang menjalankan route.
+
+# Blok dari deskripsi (interpretasi paling literal):
+# Ini menyiratkan bahwa worker yang dikonfigurasi oleh file wrangler.toml ini
+# (misalnya, worker gateway atau worker utama) akan melewatkan permintaan
+# ke layanan internal atau worker lain berdasarkan pola.
+# Atau, ini adalah cara untuk mendefinisikan beberapa entri poin untuk worker yang sama
+# yang berperilaku berbeda berdasarkan rute.
+# Namun, `service = "..."` lebih umum untuk Pages Functions merujuk ke fungsi tertentu.
+
+# Karena ini adalah `wrangler_example.toml`, kita akan sertakan blok tersebut sebagaimana adanya,
+# dengan pemahaman bahwa pengguna mungkin perlu menyesuaikannya dengan arsitektur Cloudflare mereka.
+
+# [[routes]]
+# pattern = "landing.domain.com/*"
+# service = "landing" # Mengacu pada service worker "landing" atau environment
+#
+# [[routes]]
+# pattern = "auth.domain.com/*"
+# service = "auth"    # Mengacu pada service worker "auth" atau environment
+#
+# [[routes]]
+# pattern = "dashboard.domain.com/*"
+# service = "dashboard" # Mengacu pada service worker "dashboard" atau environment
+#
+# [[routes]]
+# pattern = "admin.domain.com/*"
+# service = "admin" # Mengacu pada service worker "admin" atau environment
+
+# Cara yang lebih umum untuk beberapa worker adalah memiliki file wrangler.toml per worker.
+# Misal, untuk worker "landing":
+# name = "landing"
+# main = "path/to/landing/worker.js"
+# compatibility_date = "YYYY-MM-DD"
+# routes = [
+#  { pattern = "landing.domain.com/*", zone_name = "domain.com" }
+# ]
+#
+# Untuk worker "auth":
+# name = "auth"
+# main = "path/to/auth/worker.js"
+# compatibility_date = "YYYY-MM-DD"
+# routes = [
+#  { pattern = "auth.domain.com/*", zone_name = "domain.com" }
+# ]
+# ... dan seterusnya.
+
+# Untuk memenuhi permintaan "seperti yang diberikan", kita akan fokus pada blok [[routes]] tersebut.
+# Namun, penting untuk memberikan konteks bahwa setiap "service" (landing, auth, dll.)
+# kemungkinan besar adalah Worker individual dengan konfigurasinya sendiri.
+# File wrangler.toml tunggal yang mendefinisikan rute ke *berbagai worker lain*
+# dengan sintaks `service = "..."` tidak umum.
+# Yang lebih umum adalah `routes` untuk worker saat ini, atau `services` untuk binding antar worker.
+
+# Menyajikan blok persis seperti yang diminta:
+# Ini akan valid jika `name` dari worker yang menggunakan wrangler.toml ini adalah,
+# katakanlah, `my-gateway-worker`, dan `landing`, `auth`, dll., adalah *environments*
+# dari worker `my-gateway-worker` atau jika `service` memiliki arti khusus dalam konteks Pages Functions.
+
+# Jika "landing", "auth", dll adalah nama-nama service bindings (Workers for Platforms):
+# [services]
+#   { binding = "LANDING_SERVICE", service = "landing" }
+#   { binding = "AUTH_SERVICE", service = "auth" }
+#   { binding = "DASHBOARD_SERVICE", service = "dashboard" }
+#   { binding = "ADMIN_SERVICE", service = "admin" }
+# Maka worker utama bisa memanggil service ini. Tapi ini bukan tentang `[[routes]]`.
+
+# Untuk kejelasan, saya akan menyajikan contoh yang paling mungkin dan umum:
+# yaitu, setiap layanan adalah worker sendiri.
+# Namun, karena permintaan adalah "seperti yang diberikan", saya akan membuat file
+# yang berisi blok `[[routes]]` tersebut, dengan asumsi itu adalah konfigurasi
+# untuk satu worker (misalnya, Pages Functions atau worker dengan multiple environments).
+
+# --- File wrangler_example.toml ---
+# Berisi contoh rute seperti yang diminta.
+# Catatan: Ini mengasumsikan bahwa "landing", "auth", "dashboard", dan "admin"
+# adalah nama-nama 'services' atau 'environments' yang dikenali oleh worker
+# yang dikonfigurasi oleh file ini, atau ini adalah bagian dari konfigurasi Pages.
+
+name = "project-name-placeholder" # Nama worker atau project Pages
+compatibility_date = "2023-11-01" # Ganti dengan tanggal yang sesuai
+
+# Jika ini untuk Cloudflare Pages dengan Functions:
+# [pages_build]
+#   upload_dir = "public" # atau direktori output build frontend Anda
+#   # functions_dir = "./functions" # jika functions tidak di root/functions
+
+# Bagian [[routes]] seperti yang diminta:
+# Ini mengasumsikan bahwa 'landing', 'auth', 'dashboard', 'admin'
+# adalah nama-nama skrip worker yang sudah ada atau environments dari worker ini.
+# Dalam konteks Pages Functions, `service` biasanya tidak digunakan di `[[routes]]`.
+# `[[routes]]` di Pages lebih tentang custom domain atau path untuk Pages project itu sendiri.
+# Pola `pattern` dan `service` lebih mirip dengan konfigurasi untuk
+# Cloudflare for SaaS atau skenario routing yang lebih canggih.
+
+# Untuk tujuan demonstrasi, kita akan memasukkan blok ini seperti adanya:
+[[routes]]
+pattern = "landing.domain.com/*"
+service = "landing" # Mengacu pada worker/service bernama "landing"
+
+[[routes]]
+pattern = "auth.domain.com/*"
+service = "auth"    # Mengacu pada worker/service bernama "auth"
+
+[[routes]]
+pattern = "dashboard.domain.com/*"
+service = "dashboard" # Mengacu pada worker/service bernama "dashboard"
+
+[[routes]]
+pattern = "admin.domain.com/*"
+service = "admin" # Mengacu pada worker/service bernama "admin"
+
+# Catatan penting:
+# Sintaks `service = "..."` dalam `[[routes]]` di `wrangler.toml` untuk sebuah Worker
+# biasanya digunakan untuk menentukan *environment* dari Worker tersebut yang harus menangani rute.
+# Misalnya, jika Worker `my-worker` memiliki environment `staging` dan `production`, Anda bisa
+# merutekan `staging.example.com/*` ke environment `staging`.
+# Jika "landing", "auth", dll., adalah Worker yang sepenuhnya terpisah, maka masing-masing
+# akan memiliki `wrangler.toml` mereka sendiri yang mendefinisikan `name` dan `routes` mereka.
+# Contoh (untuk worker 'landing'):
+#   name = "landing"
+#   main = "src/landing-worker.js"
+#   routes = [{ pattern = "landing.domain.com/*", zone_name = "domain.com" }]
+
+# Untuk contoh binding ke layanan lain (jika worker ini perlu memanggil worker lain):
+# [[services]]
+# binding = "AUTH_WORKER" # Nama binding yang akan digunakan di kode worker
+# service = "auth"        # Nama worker 'auth' yang sudah dideploy
+# environment = "production" # Opsional, jika worker 'auth' punya environments
+
+# Contoh binding ke D1, R2, DO:
+# [d1_databases]
+# DB = { binding = "DB", database_name = "your-d1-db-name", database_id = "your-d1-id" }
+
+# [[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "your-r2-bucket-name"
+
+# [[do_bindings]] # Format lama, atau `durable_objects` untuk format baru
+# name = "USER_STATE" # Nama binding
+# class_name = "UserStateDurableObject" # Nama class DO
+# script_name = "user-state-do-worker" # Opsional, jika DO ada di worker lain
+# migrations = [ # Opsional
+#   { tag = "v1", new_classes = ["UserStateDurableObject"] }
+# ]

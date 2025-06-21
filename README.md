@@ -1,269 +1,80 @@
-# 🚀 Crebost - Platform Kreator Indonesia
+# Sistem Deteksi Bot dan Manajemen Payout
 
-Platform terdepan untuk kreator Indonesia. Monetisasi konten, kelola audience, dan kembangkan bisnis kreatif Anda.
+Proyek ini mengimplementasikan sistem untuk mendeteksi aktivitas bot berdasarkan perilaku pengguna dan mengelola perhitungan payout untuk aktivitas yang valid. Sistem ini dirancang dengan mempertimbangkan deployment di lingkungan Cloudflare.
 
-## 🌐 Live Services
+## Fitur Utama
 
-### ✅ Currently Deployed
-- **Landing Page**: https://crebost-landing.pages.dev
-- **Auth Service**: https://crebost-auth.pages.dev
-- **Dashboard**: https://crebost-dashboard.pages.dev
-- **Admin Panel**: https://crebost-admin.pages.dev
-- **API Worker**: https://crebost-api.rendoarsandi.workers.dev
-- **Webhooks Worker**: https://crebost-webhooks.rendoarsandi.workers.dev
+1.  **Deteksi Bot Berbasis Aktivitas**:
+    *   Mengukur aktivitas pengguna (views, likes, comments) per menit (`Rate_per_min`).
+    *   Menghitung rata-rata aktivitas pengguna (`R_bar`) selama periode tertentu (misalnya, harian).
+    *   Mengklasifikasikan pengguna ke dalam level risiko bot (A, B, C) berdasarkan perbandingan `R_bar` mereka dengan mean ($\mu$) dan standar deviasi ($\sigma$) dari aktivitas pengguna normal.
+        *   **Level A**: Aktivitas sangat tinggi (di atas $\mu + 3\sigma$), mengindikasikan kemungkinan besar bot. Akun diblokir dan payout dibatalkan.
+        *   **Level B**: Aktivitas mencurigakan ($\mu + 2\sigma < \overline{R} \le \mu + 3\sigma$). Pengguna diberi peringatan dan akun ditandai untuk audit manual.
+        *   **Level C**: Aktivitas dianggap valid ($\overline{R} \le \mu + 2\sigma$).
 
-### 🔄 Next Steps
-- Test inter-service communication with Pages domains
-- Implement BetterAuth authentication flows
-- Deploy database schema to D1
+2.  **Perhitungan Payout Harian**:
+    *   Payout dihitung untuk pengguna dengan aktivitas valid (Level C).
+    *   Rumus: `Payout_harian = (R_bar_harian_valid * Jumlah_Menit_Dalam_Hari) * RateFee`.
+    *   `RateFee` adalah nilai bayaran per unit aktivitas.
 
-## 🏗️ Architecture
+3.  **Model Harga Berbasis Penggunaan (Usage-Based Pricing)**:
+    *   Biaya dikenakan per 1.000 "rate-unit" (satu unit aktivitas = satu rate-unit).
+    *   Diskon volume untuk penggunaan dalam jumlah besar (misalnya, di atas 10 juta rate-unit).
+    *   Biaya kelebihan (overage fee) dengan tarif premium jika pemakaian melebihi batas kredit yang telah dibeli/ditentukan.
 
-```
-crebost platform/
-├── crebost-landing.pages.dev     # Landing page (Cloudflare Pages)
-├── crebost-auth.pages.dev        # Authentication (BetterAuth + Pages)
-├── crebost-dashboard.pages.dev   # User dashboard (Pages)
-├── crebost-admin.pages.dev       # Admin panel (Pages)
-├── crebost-api.rendoarsandi.workers.dev    # API worker
-└── crebost-webhooks.rendoarsandi.workers.dev # Webhooks worker
-```
+4.  **Arsitektur Cloudflare (Konseptual)**:
+    *   **Workers**: Untuk menangani endpoint API (login, tracking aktivitas).
+    *   **Durable Objects**: Untuk menyimpan state per pengguna (misalnya, `Rate_per_min` saat ini, status flag).
+    *   **R2 Storage**: Untuk menyimpan log aktivitas mentah.
+    *   **D1 Database**: Untuk menyimpan data pengguna, kampanye, histori aktivitas terstruktur, dan mungkin threshold.
+    *   Contoh konfigurasi `wrangler.toml` disediakan untuk routing subdomain.
 
-## 🔧 Tech Stack
+## Struktur Proyek
 
-- **Frontend**: Next.js, React, Tailwind CSS
-- **Backend**: Cloudflare Workers
-- **Database**: Cloudflare D1 (SQLite)
-- **Storage**: Cloudflare R2, KV
-- **Auth**: BetterAuth
-- **Payment**: Midtrans
-- **Deployment**: Cloudflare Pages + Workers
+*   `main.py`: Titik masuk utama untuk menjalankan simulasi alur deteksi bot dan payout.
+*   `bot_detection.py`: Berisi logika inti untuk menghitung rate aktivitas dan menentukan level deteksi bot.
+*   `user_activity.py`: Mengelola data dan sesi aktivitas pengguna (views, likes, comments).
+*   `payout_calculation.py`: Menangani perhitungan payout harian.
+*   `pricing_model.py`: Mengimplementasikan logika untuk model harga berbasis penggunaan.
+*   `config.py`: Menyimpan konstanta konfigurasi (misalnya, $\mu$, $\sigma$, `RateFee`, parameter harga).
+*   `cloudflare_integration.py`: Berisi kelas dan fungsi konseptual untuk menunjukkan bagaimana interaksi dengan layanan Cloudflare (Workers, D1, R2, DO) dapat dilakukan.
+*   `wrangler_example.toml`: Contoh file konfigurasi `wrangler.toml` untuk deployment Cloudflare.
+*   `README.md`: File ini.
 
-## 📦 Cloudflare Resources
+## Cara Kerja (Simulasi)
 
-### Database & Storage
-- **D1 Database**: `crebost-production` (ID: 23bed93f-255c-4394-95d8-3408fd23e3e5)
-- **KV Namespaces**:
-  - `crebost-sessions` (ID: 4ba509d0217e4fa3878c7b9df162ae79)
-  - `crebost-cache` (ID: 11ac1ff7bee34d709cb2d155600a17150)
-  - `crebost-analytics` (ID: 647612dcd178469bbf1b2800e4cb3451)
-- **R2 Buckets**: `crebost-uploads`, `crebost-static-assets`
+1.  **Konfigurasi**: Parameter seperti `MEAN_NORMAL_ACTIVITY` ($\mu$), `STD_DEV_NORMAL_ACTIVITY` ($\sigma$), dan `RATE_FEE_PER_ACTIVITY` diatur dalam `config.py`.
+2.  **Simulasi Sesi Pengguna**: `main.py` menjalankan skenario-skenario:
+    *   Sesi pengguna baru dibuat menggunakan `user_activity.UserSession`.
+    *   Serangkaian aktivitas (views, likes, comments) disimulasikan untuk pengguna tersebut.
+3.  **Perhitungan Rate**:
+    *   `bot_detection.calculate_rate_per_minute()` menghitung `Rate_per_min` berdasarkan aktivitas dalam periode pengukuran `T` (default 1 menit).
+4.  **Deteksi Bot**:
+    *   `bot_detection.detect_bot_level()` membandingkan `Rate_per_min` pengguna (sebagai proxy untuk $\overline{R}$ dalam simulasi ini) dengan threshold $\mu \pm k\sigma$.
+    *   Tindakan yang sesuai (`handle_bot_detection_action`) ditentukan.
+5.  **Perhitungan Payout**:
+    *   Jika pengguna diklasifikasikan sebagai Level C (valid), `payout_calculation.calculate_daily_payout()` mengestimasi payout harian. Dalam simulasi, rate periode tunggal digunakan sebagai proxy untuk $\overline{R}$ harian.
+6.  **Perhitungan Biaya (Model Harga)**:
+    *   `pricing_model.py` dapat digunakan secara terpisah untuk menghitung biaya berdasarkan total rate-unit yang dikonsumsi, dengan mempertimbangkan diskon volume dan overage.
 
-### Workers
-- **API Worker**: Handles all API requests, authentication, data operations
-- **Webhooks Worker**: Processes payment webhooks from Midtrans
+## Untuk Menjalankan Simulasi
 
-## 🚀 Quick Start
-
-### Prerequisites
+Simulasi utama dapat dijalankan dengan mengeksekusi `main.py`:
 ```bash
-npm install -g wrangler
-wrangler auth login
+python main.py
 ```
+Ini akan mencetak output dari berbagai skenario pengguna (normal, bot level A, bot level B, dll.) beserta hasil deteksi dan estimasi payout.
 
-### Development
+Modul lain seperti `pricing_model.py` juga dapat dijalankan secara individual untuk melihat contoh perhitungannya:
 ```bash
-# Install dependencies
-npm install
-
-# Start development
-npm run dev
-
-# Build all apps
-npm run build
+python pricing_model.py
 ```
 
-### Deployment
+## Pengembangan Lebih Lanjut
 
-#### Deploy Workers
-```bash
-# API Worker
-cd workers/api
-wrangler deploy
-
-# Webhooks Worker  
-cd workers/webhooks
-wrangler deploy
+*   Implementasi penuh interaksi dengan layanan Cloudflare (Workers, D1, R2, DO).
+*   Pengembangan mekanisme untuk menghitung $\overline{R}$ secara akurat dari data historis per pengguna yang disimpan di D1/DO.
+*   Pembuatan dashboard admin untuk memantau aktivitas, audit pengguna Level B, dan mengelola konfigurasi.
+*   Integrasi dengan sistem otentikasi dan manajemen pengguna yang sebenarnya.
+*   Pengembangan CI/CD pipeline untuk deployment ke Cloudflare.
 ```
-
-#### Deploy Pages
-```bash
-# Create and deploy pages
-wrangler pages project create crebost-landing
-wrangler pages deploy temp-static/landing --project-name crebost-landing
-
-wrangler pages project create crebost-auth
-wrangler pages deploy temp-static/auth --project-name crebost-auth
-
-wrangler pages project create crebost-dashboard
-wrangler pages deploy temp-static/dashboard --project-name crebost-dashboard
-
-wrangler pages project create crebost-admin
-wrangler pages deploy temp-static/admin --project-name crebost-admin
-```
-
-## 🔐 Environment Variables
-
-### BetterAuth Configuration
-```bash
-BETTER_AUTH_SECRET=L90cbYFfrXn3Yl1TewISaJLU2bFsSNWN
-BETTER_AUTH_URL=https://auth.crebost.com
-```
-
-### Service URLs
-```bash
-NEXT_PUBLIC_AUTH_URL=https://crebost-auth.pages.dev
-NEXT_PUBLIC_LANDING_URL=https://crebost-landing.pages.dev
-NEXT_PUBLIC_DASHBOARD_URL=https://crebost-dashboard.pages.dev
-NEXT_PUBLIC_ADMIN_URL=https://crebost-admin.pages.dev
-```
-
-### Payment Integration
-```bash
-MIDTRANS_SERVER_KEY=your-midtrans-server-key
-MIDTRANS_CLIENT_KEY=your-midtrans-client-key
-```
-
-## 🔍 API Endpoints
-
-### Health Checks
-- **API**: `GET /api/health`
-- **Webhooks**: `GET /webhooks/health`
-
-### Authentication
-- **Session**: `GET /api/auth/session`
-- **Login**: `POST /api/auth/login`
-- **Logout**: `POST /api/auth/logout`
-
-### Content Management
-- **Get Content**: `GET /api/content`
-- **Create Content**: `POST /api/content`
-- **Update Content**: `PUT /api/content`
-- **Delete Content**: `DELETE /api/content`
-
-### Webhooks
-- **Midtrans**: `POST /webhooks/midtrans`
-- **Payment**: `POST /webhooks/payment`
-
-## 🧪 Testing
-
-### Test API Health
-```bash
-curl https://crebost-api.rendoarsandi.workers.dev/api/health
-```
-
-### Test Webhooks Health
-```bash
-curl https://crebost-webhooks.rendoarsandi.workers.dev/webhooks/health
-```
-
-### Test All Services
-```bash
-# Run communication test script
-powershell -ExecutionPolicy Bypass -File scripts/test-subdomain-communication.ps1
-```
-
-## 📁 Project Structure
-
-```
-crebost/
-├── apps/
-│   ├── landing/          # Landing page app
-│   ├── auth/             # Authentication app
-│   ├── dashboard/        # User dashboard app
-│   └── admin/            # Admin panel app
-├── workers/
-│   ├── api/              # API worker
-│   └── webhooks/         # Webhooks worker
-├── temp-static/          # Static pages for deployment
-├── scripts/              # Deployment and test scripts
-├── packages/             # Shared packages
-└── cloudflare-mcp-config.json  # Cloudflare configuration
-```
-
-## 🔄 Manual Deployment
-
-Deploy manually using Wrangler CLI commands:
-
-### Deploy Workers
-```bash
-# API Worker
-cd workers/api && wrangler deploy
-
-# Webhooks Worker
-cd workers/webhooks && wrangler deploy
-```
-
-### Deploy Pages
-```bash
-# Deploy to existing projects
-wrangler pages deploy temp-static/landing --project-name crebost-landing
-wrangler pages deploy temp-static/auth --project-name crebost-auth
-wrangler pages deploy temp-static/dashboard --project-name crebost-dashboard
-wrangler pages deploy temp-static/admin --project-name crebost-admin
-```
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Build Errors**: 
-   - Check TypeScript errors
-   - Ensure all dependencies installed
-   - Verify environment variables
-
-2. **Deployment Failures**:
-   - Check Cloudflare API token permissions
-   - Verify resource IDs in wrangler.toml
-   - Check account limits
-
-3. **CORS Errors**:
-   - Verify origin URLs in worker configuration
-   - Check custom domain setup
-
-### Debug Commands
-```bash
-# Check Wrangler auth
-wrangler whoami
-
-# List resources
-wrangler d1 list
-wrangler kv:namespace list
-wrangler r2 bucket list
-
-# View logs
-wrangler tail crebost-api
-wrangler tail crebost-webhooks
-```
-
-## 📞 Support
-
-- **API Status**: https://crebost-api.rendoarsandi.workers.dev/api/health
-- **Webhooks Status**: https://crebost-webhooks.rendoarsandi.workers.dev/webhooks/health
-- **Cloudflare Dashboard**: https://dash.cloudflare.com
-- **GitHub Repository**: https://github.com/rendoarsandi/crebost
-
----
-
-## 🎉 Deployment Complete!
-
-**Status**: ✅ ALL SERVICES DEPLOYED AND LIVE WITH PAGES DOMAINS!
-**Last Updated**: 2025-06-19
-**Configuration**: Using Cloudflare Pages default domains for inter-service communication
-**Next**: Implement BetterAuth flows and deploy database schema
-
-### 🚀 All Services Successfully Deployed:
-- ✅ Landing Page: Live and accessible
-- ✅ Auth Service: Live with BetterAuth ready
-- ✅ Dashboard: Live with creator tools
-- ✅ Admin Panel: Live with admin controls
-- ✅ API Worker: Live with health checks
-- ✅ Webhooks Worker: Live for payment processing
-
-### 🔗 Quick Access Links:
-- **Landing**: https://crebost-landing.pages.dev (Latest: https://e1d3e307.crebost-landing.pages.dev)
-- **Auth**: https://crebost-auth.pages.dev (Latest: https://2f201f4d.crebost-auth.pages.dev)
-- **Dashboard**: https://crebost-dashboard.pages.dev (Latest: https://5ff0f4bf.crebost-dashboard.pages.dev)
-- **Admin**: https://crebost-admin.pages.dev (Latest: https://b9c9d885.crebost-admin.pages.dev)
-- **API Health**: https://crebost-api.rendoarsandi.workers.dev/api/health
-- **Webhooks Health**: https://crebost-webhooks.rendoarsandi.workers.dev/webhooks/health
